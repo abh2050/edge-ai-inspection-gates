@@ -418,7 +418,15 @@ function render(d) {
         el("p", {class: "caption", text: "One normal part, one defective part, and the anomaly map recorded during the gate 1 evaluation. Each decision compares the image score with a threshold derived from held-out normal training images and frozen before test inference."}),
       ]),
       el("div", {class: "example"}, [
-        el("img", {src: ex.image, alt: "Normal bottle, defective bottle, and the recorded anomaly map", loading: "lazy"}),
+        el("img", {
+          // the build stamp busts any copy a browser cached before the figure existed
+          src: `${ex.image}?built=${encodeURIComponent(d.generated_at_utc)}`,
+          alt: "Normal bottle, defective bottle, and the recorded anomaly map",
+          on: {error: event => {
+            event.target.replaceWith(el("p", {class: "err", text:
+              `Figure ${ex.image} did not load. Run make dashboard-build to regenerate it beside the page.`}));
+          }},
+        }),
         el("div", {class: "facts"}, [
           fact("frozen threshold", F(ex.threshold, 4)),
           fact("normal part score", F(ex.normal.score, 3)),
