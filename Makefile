@@ -55,5 +55,4 @@ dashboard-build:
 	$(RUN) python scripts/build_sample_figure.py
 	$(RUN) python scripts/build_dashboard.py
 dashboard: dashboard-build
-	@echo 'Serving the evidence dashboard at http://127.0.0.1:8787/ (ctrl-c to stop).'
-	@cd dashboard && $(UV) run --frozen python -m http.server 8787 --bind 127.0.0.1
+	$(RUN) python scripts/serve_dashboard.py

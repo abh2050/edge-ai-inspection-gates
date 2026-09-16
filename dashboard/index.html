@@ -409,6 +409,10 @@ function render(d) {
     ]),
   ]));
 
+  if (!d.detection_example) {
+    shell.appendChild(el("div", {class: "err", text:
+      "This data.json predates the detection example. Run make dashboard-build and reload."}));
+  }
   if (d.detection_example) {
     const ex = d.detection_example;
     const fact = (k, v, tone) => el("div", {}, [el("span", {class: "k", text: k}), el("span", {class: `v ${tone || ""}`, text: v})]);
@@ -571,7 +575,8 @@ function render(d) {
   update();
 }
 
-fetch("./data.json")
+// no-store plus a unique query defeats any cached copy of an earlier run
+fetch(`./data.json?t=${Date.now()}`, {cache: "no-store"})
   .then(r => (r.ok ? r.json() : Promise.reject(new Error(`data.json returned ${r.status}`))))
   .then(render)
   .catch(err => {
