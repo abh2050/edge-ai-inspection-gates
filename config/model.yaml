@@ -1,0 +1,45 @@
+schema_version: 1
+architecture: convolutional_student_teacher
+adr: docs/decisions/0001-model.md
+backbone: mobilenet_v3_small
+implementation: native_pytorch
+teacher:
+  frozen: true
+  initialization: externally_fetched_pretrained_weights
+  source_url: https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth
+  sha256: 047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f
+  license_record: docs/teacher-provenance.md
+  local_path: artifacts/weights/mobilenet_v3_small-047dcff4.pth
+  published_sha256_prefix: 047dcff4
+student:
+  initialization: random
+  match_teacher_features: true
+feature_stages:
+- 3
+- 8
+- 12
+score:
+  pixel: mean_of_resized_normalized_feature_distances
+  image: max_pixel_score
+  normalization_source: training_fit_partition
+training:
+  seed: 42
+  epochs: 20
+  batch_size: 8
+  learning_rate: 0.001
+  device: cpu
+  category: bottle
+  cpu_threads: 4
+quality_floors:
+  image_auroc: 0.9
+  pixel_auroc: 0.9
+  operating_recall: 0.95
+threshold:
+  initial_method: normal_validation_quantile
+  normal_quantile: 0.99
+  cost_selection_source: cached_test_scores_research_only
+  commercial_validation_manifest: null
+  anomaly_is_positive: true
+  decision_rule: score_greater_than_or_equal_to_threshold_is_reject
+  accuracy_maximizing_metric: f1
+  tie_break: higher_recall_then_lower_false_reject_rate

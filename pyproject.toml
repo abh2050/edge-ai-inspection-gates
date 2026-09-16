@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cycletime-inspect"
+version = "0.1.0"
+description = "Measure industrial anomaly detection against cycle time and cost."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "torch>=2.6,<3", "torchvision>=0.21,<1",
+  "onnx>=1.17,<2", "onnxruntime>=1.20,<2",
+  "onnxconverter-common>=1.14,<2", "onnxscript>=0.2,<1",
+  "numpy>=2,<3", "polars>=1.20,<2", "matplotlib>=3.9,<4",
+  "PyYAML>=6,<7", "pydantic>=2.10,<3", "Pillow>=11,<13",
+  "scikit-learn>=1.6,<2",
+]
+
+[project.optional-dependencies]
+llm = ["httpx>=0.28,<1"]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "mypy>=1.15,<2", "types-PyYAML>=6,<7"]
+
+[project.scripts]
+cycletime = "cycletime.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cycletime"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+  "hardware: The test requires the recorded measurement host.",
+  "contract: The test defines an unfinished implementation contract.",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.mypy]
+python_version = "3.12"
+strict = true

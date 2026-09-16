@@ -1,0 +1,71 @@
+schema_version: 1
+line_rate_parts_per_minute: 45
+# The exact allowance equals 60000 / 45 milliseconds per part.
+display_budget_ms: 1333
+warmup_iterations: 20
+timed_iterations: 500
+batch_size: 1
+concurrency: 1
+clock: perf_counter_ns
+quantile_method: linear
+measurement_scope: preprocess_infer_postprocess
+input_source: held_out_normal_validation
+intra_op_threads: 1
+inter_op_threads: 1
+providers:
+  - id: cpu
+    name: CPUExecutionProvider
+    options: {}
+    required: true
+    require_ane_evidence: false
+  # ADR 0007 measures CoreML as a diagnostic provider; its failures are recorded but not decisive.
+  - id: coreml_cpu_ane
+    name: CoreMLExecutionProvider
+    options:
+      ModelFormat: MLProgram
+      MLComputeUnits: CPUAndNeuralEngine
+      RequireStaticInputShapes: '1'
+      EnableOnSubgraphs: '0'
+    required: false
+    require_ane_evidence: false
+    placement_evidence_path: null
+    allow_ort_cpu_fallback: false
+    allow_coreml_internal_cpu_operators: true
+required_matrix: every_precision_by_every_required_provider
+unavailable_provider_policy: fail
+missing_placement_policy: fail
+latency_source: local_measured_samples_only
+require_utc_timestamp: true
+sustained:
+  duration_minutes: 30
+  reporting_window_seconds: 60
+  rate_parts_per_minute: 45
+  pacing: monotonic_absolute_deadlines
+  backlog_policy: record_miss_and_fail_without_queue
+  hold_rate_tolerance_fraction: 0.01
+  # A series fails if the host sleeps; monotonic benchmark clocks do not advance during sleep.
+  # Sleep lasts seconds: the aborted 2026-09-15 run lost 29 and 46 seconds in single windows.
+  # Three valid thirty-minute series drifted by at most 24 ms within a window, so 1000 ms
+  # separates real sleep from clock drift without hiding any observed suspension.
+  host_suspension_tolerance_ms: 1000
+  comparison_minutes: [1, 25]
+  record_raw_samples: true
+  record_deadlines_and_misses: true
+  record_sample_count_per_minute: true
+  telemetry_interval_seconds: 1
+  telemetry_unavailable_policy: record_unknown_without_throttling_claim
+  run_pairs_sequentially: true
+  # ADR 0007 requires sustained runs for required providers only.
+  include_diagnostic_providers: false
+  require_recorded_starting_conditions: true
+  starting_conditions_path: null
+budget:
+  non_model_overhead_ms: null
+  release_requires_measured_non_model_overhead: true
+  research_feasibility: measured_p99_within_full_cycle_allowance
+  release_feasibility: worst_sustained_p99_plus_overhead_within_allowance
+outputs:
+  samples: artifacts/bench
+  thermal: artifacts/thermal
+  environment: artifacts/environment.json
+  table: docs/latency.md

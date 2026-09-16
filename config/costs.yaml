@@ -1,0 +1,29 @@
+schema_version: 1
+currency: USD
+assumption_status: illustrative_research_only
+scrap_cost_usd: 8.00
+warranty_return_cost_usd: 250.00
+rework_cost_usd: 3.00
+parts_per_shift: 21600
+shifts_per_month: 40
+shift_hours: 8
+production_defect_prevalence: 0.01
+prevalence_range: [0.001, 0.01, 0.05]
+false_accept_treatment: warranty_return
+false_reject_treatment: scrap
+true_reject_treatment: rework
+true_accept_treatment: no_incremental_cost
+count_outcomes_exclusively: true
+minimum_defect_recall: 0.95
+llm:
+  input_cost_usd_per_million_tokens: null
+  output_cost_usd_per_million_tokens: null
+  max_cost_usd_per_run: 1.00
+  amortized_runs_per_shift: 0
+commercial:
+  customer_validated: false
+  baseline_cost_usd_per_shift: null
+  commissioning_cost_usd: null
+  support_cost_usd_per_month: null
+  software_price_usd_per_month: null
+  downtime_cost_usd_per_minute: null

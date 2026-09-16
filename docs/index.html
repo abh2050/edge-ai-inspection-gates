@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cycletime-inspect · Project record</title>
+  <style>
+    :root{color-scheme:light;--ink:#172b35;--muted:#526773;--paper:#f5f7f5;--line:#dce4df;--green:#17674a;--amber:#92501a}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--green);text-underline-offset:4px}header{background:#142e2c;color:#fff;padding:76px max(24px,calc((100vw - 1120px)/2));border-bottom:8px solid #b3d5b5}.eyebrow{font:600 12px/1.5 monospace;letter-spacing:2px;text-transform:uppercase;color:#b3d5b5}h1{font-size:clamp(36px,6vw,66px);line-height:1.05;letter-spacing:-2px;margin:20px 0}header p{max-width:760px;color:#dce8e0;font-size:20px}main{max-width:1120px;margin:auto;padding:40px 24px 70px}nav{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:35px}section{margin:55px 0}h2{font-size:30px;line-height:1.25;letter-spacing:-.7px}h3{font-size:19px;margin-top:0}p{max-width:850px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:white;border:1px solid var(--line);border-radius:14px;padding:24px}.metric{display:block;font-size:35px;font-weight:700;letter-spacing:-1px}.label{color:var(--muted);font-size:14px}.notice{border-left:5px solid #c47c36;background:#fff4e7;padding:22px 26px;border-radius:0 12px 12px 0}.notice strong{color:var(--amber)}.pass{color:var(--green);font-weight:700}.tag{display:inline-block;background:#e5f2e9;color:var(--green);font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px}.warning{background:#fff0de;color:var(--amber)}.table-wrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px}table{border-collapse:collapse;width:100%;font-size:14px;white-space:nowrap}th,td{text-align:left;padding:15px;border-bottom:1px solid var(--line)}th{background:#eaf0eb}tr:last-child td{border-bottom:0}figure{margin:28px 0;background:white;border:1px solid var(--line);border-radius:14px;overflow:hidden}figure img{display:block;width:100%;height:auto}figcaption{padding:16px 22px;color:var(--muted);font-size:14px}svg{display:block;width:100%;height:auto}.steps{list-style:none;padding:0;counter-reset:gate}.steps li{position:relative;background:#fff;border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:20px 24px 20px 76px}.steps li:before{counter-increment:gate;content:"0" counter(gate);position:absolute;left:22px;top:20px;font:700 22px monospace;color:var(--green)}.steps li:first-child:before{content:"00"}.steps{counter-reset:gate -1}.steps strong{display:block}.sources{columns:2;column-gap:35px}.sources li{break-inside:avoid;margin:8px 0}footer{border-top:1px solid var(--line);padding-top:25px;color:var(--muted);font-size:13px}code{font-size:.88em;background:#eaf0eb;padding:2px 5px;border-radius:4px}@media(max-width:720px){.grid{grid-template-columns:1fr}.sources{columns:1}header{padding:45px 24px}main{padding:28px 18px}section{margin:40px 0}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">The project record · September 16, 2026</div>
+  <h1>cycletime-inspect measures<br>accuracy, cycle time, and cost.</h1>
+  <p>We built a reproducible research pipeline that detects industrial surface anomalies, compares three exported precisions, measures local inference, and selects an operating point from recorded evidence.</p>
+</header>
+<main>
+  <nav aria-label="Page sections"><a href="#business">The business problem</a><a href="#status">Current status</a><a href="#pipeline">What we built</a><a href="#results">Measured results</a><a href="#ane">The ANE investigation</a><a href="#economics">The cost decision</a><a href="#next">What remains</a></nav>
+
+  <section id="business">
+    <h2>Manufacturers need to catch defects at production speed while controlling inspection cost.</h2>
+    <p>A factory loses money when a defective part reaches a customer. It also loses money when inspection rejects a good part. The inspection system must balance these errors while keeping up with the production line.</p>
+    <figure><img src="screenshots/manufacturing-context.jpeg" alt="Yellow industrial robots work beside a conveyor carrying solar panels in an automated factory." width="768" height="541"><figcaption>The supplied factory image illustrates the manufacturing context. It does not depict our test setup. The <a href="https://blog-assets.3ds.com/uploads/2023/06/29966-hero-banner-1-2-1-768x541.jpeg">image source is Dassault Systèmes.</a></figcaption></figure>
+    <div class="grid">
+      <div class="card"><h3>A defective part escapes.</h3><p>The manufacturer may pay for warranty claims, returns, replacement parts, or customer failures. The model must catch enough defects to control that risk.</p></div>
+      <div class="card"><h3>A good part gets rejected.</h3><p>The manufacturer wastes material, labor, and production capacity. The decision threshold must limit unnecessary scrap and rework.</p></div>
+      <div class="card"><h3>Inspection falls behind.</h3><p>The station misses its cycle deadline or slows production. The model must sustain the target of 45 parts per minute on the actual inspection hardware.</p></div>
+    </div>
+    <p><strong>The business question asks which inspection model and decision threshold catch enough defects, keep up with the line, and produce the lowest expected cost per shift.</strong></p>
+    <p>This project demonstrates how an engineer answers that question with measured accuracy, local latency, sustained throughput, and configured economic assumptions. A potential customer would buy a validated inspection deployment for their parts, cameras, and production line. Customer data and station testing must establish its business value.</p>
+    <figure>
+      <svg viewBox="0 0 1000 200" role="img" aria-labelledby="business-title business-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="business-title">An inspection decision routes parts to acceptance, rework, or scrap.</title>
+        <desc id="business-desc">A camera captures a part. The model and threshold produce a decision. Acceptance can let a defect escape, while rejection can scrap a good part. Measured cycle time and expected error cost guide the choice.</desc>
+        <rect width="1000" height="200" fill="#fff"/>
+        <g fill="#edf5ef" stroke="#bfd2c3"><rect x="25" y="64" width="190" height="72" rx="12"/><rect x="265" y="64" width="260" height="72" rx="12"/><rect x="590" y="24" width="375" height="65" rx="12"/></g>
+        <rect x="590" y="112" width="375" height="65" rx="12" fill="#fff4e7" stroke="#e5c7a6"/>
+        <g fill="none" stroke="#17674a" stroke-width="2"><path d="M215 100H265"/><path d="M525 100H555V56H590"/><path d="M555 100V144H590"/></g>
+        <g fill="#172b35" font-family="system-ui,sans-serif" text-anchor="middle"><g font-size="18" font-weight="700"><text x="120" y="96">A camera sees the part.</text><text x="395" y="96">The model makes a decision.</text><text x="777" y="50">The station accepts the part.</text><text x="777" y="138">The station rejects the part.</text></g><g font-size="13"><text x="120" y="119">The cycle budget includes capture.</text><text x="395" y="119">The threshold balances inspection errors.</text><text x="777" y="72">An escaped defect can create warranty cost.</text><text x="777" y="160">A rejected good part can create scrap cost.</text></g></g>
+      </svg>
+      <figcaption>This diagram explains the intended business workflow. The project currently measures model performance and models quality cost; it does not operate a factory station.</figcaption>
+    </figure>
+  </section>
+
+  <section id="status">
+    <div class="grid">
+      <div class="card"><span class="metric">6 gates pass</span><span class="label">The current scope requires CPU and treats CoreML as diagnostic.</span></div>
+      <div class="card"><span class="metric">45 parts/min</span><span class="label">Each required CPU configuration sustained the target for 30 minutes.</span></div>
+      <div class="card"><span class="metric">0 deadline misses</span><span class="label">Gate 4 recorded no missed slots or deadline misses for the CPU runs.</span></div>
+    </div>
+    <p class="label">The measurements come from an Apple M3 Pro, model Mac15,6, running macOS 26.6.2 with ONNX Runtime 1.30.0. The source records are <a href="../artifacts/gate3.json">Gate 3</a> and <a href="../artifacts/gate4.json">Gate 4</a>.</p>
+    <div class="notice"><strong>The project has not qualified Neural Engine execution or a commercial release.</strong> Gate 3 passes because <a href="decisions/0007-coreml-diagnostic-provider.md">ADR 0007</a> makes CPU required and CoreML diagnostic. All three diagnostic CoreML rows fail the CPU fallback policy. Their timings do not establish qualified accelerator performance.</div>
+  </section>
+
+  <section id="pipeline">
+    <h2>We built the pipeline in acceptance gates.</h2>
+    <p>The Python 3.12 project uses uv, PyTorch, torchvision, ONNX, ONNX Runtime, NumPy, and pytest. A frozen MobileNetV3 Small teacher supplies features, and a student learns those features from defect-free training images. Their normalized differences produce the anomaly map and image score.</p>
+    <figure>
+      <svg viewBox="0 0 1000 245" role="img" aria-labelledby="flow-title flow-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="flow-title">The pipeline carries data through training, export, measurement, and a cost decision.</title>
+        <desc id="flow-desc">Verified MVTec data feeds feature distillation. The project exports FP32, mixed FP16, and mixed INT8 graphs, measures CPU latency and sustained throughput, then selects a retrospective cost point.</desc>
+        <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="#17674a"/></marker></defs>
+        <rect width="1000" height="245" fill="#fff"/>
+        <g fill="#edf5ef" stroke="#bfd2c3"><rect x="25" y="64" width="165" height="110" rx="12"/><rect x="222" y="64" width="165" height="110" rx="12"/><rect x="419" y="64" width="165" height="110" rx="12"/><rect x="616" y="64" width="165" height="110" rx="12"/><rect x="813" y="64" width="165" height="110" rx="12"/></g>
+        <g stroke="#17674a" stroke-width="2" marker-end="url(#arrow)"><path d="M191 119H215"/><path d="M388 119H412"/><path d="M585 119H609"/><path d="M782 119H806"/></g>
+        <g fill="#172b35" font-family="system-ui,sans-serif" text-anchor="middle"><g font-size="17" font-weight="700"><text x="107" y="99">We verify data.</text><text x="304" y="99">We distill features.</text><text x="501" y="99">We export graphs.</text><text x="698" y="99">We measure runs.</text><text x="895" y="99">We compare cost.</text></g><g font-size="13"><text x="107" y="128">MVTec AD · 15 categories</text><text x="107" y="149">Gate 0</text><text x="304" y="128">Teacher + student · bottle</text><text x="304" y="149">Gate 1</text><text x="501" y="128">FP32 / FP16 / INT8</text><text x="501" y="149">Gate 2</text><text x="698" y="128">Microbench + 30-min pacing</text><text x="698" y="149">Gates 3–4</text><text x="895" y="128">Cached scores + assumptions</text><text x="895" y="149">Gate 5</text></g><text x="500" y="211" font-size="13" fill="#526773">This diagram explains the implementation; the linked gate records supply acceptance evidence.</text></g>
+      </svg>
+      <figcaption>The architecture follows <a href="decisions/0001-model.md">ADR 0001</a>. The inference path does not call an LLM.</figcaption>
+    </figure>
+    <ol class="steps">
+      <li><strong>Gate 0 verifies the dataset. <span class="tag">Passed</span></strong> We verify the approved archive digest, reject unsafe extraction paths, check all fifteen categories, assert normal-only training data, and validate image and mask geometry. The source dataset contains 3,629 training images, 1,725 test images, and 1,258 masks. <a href="gate0.md">Read the verification record.</a></li>
+      <li><strong>Gate 1 trains and evaluates FP32. <span class="tag">Passed</span></strong> We train on the bottle category and report image and pixel AUROC. The threshold is frozen from held-out normal training images before test evaluation. Its recall is 0.904762, below the later 0.95 operating-point requirement. <a href="gate1.md">Read the model results.</a></li>
+      <li><strong>Gate 2 produces and verifies precision variants. <span class="tag">Passed</span></strong> Initial reduced-precision attempts failed. Validation-only diagnosis led to mixed variants that convert 36 of 104 convolution nodes. Each final artifact receives one complete test evaluation; cached FP32 results are reused. <a href="gate2.md">Read the export results.</a></li>
+      <li><strong>Gate 3 measures every provider pair. <span class="tag">Passed under revised scope</span></strong> Each row discards exactly 20 warmups and retains 500 timed batch-one completions. The timer includes preprocessing, synchronous inference, and postprocessing on already decoded images. CPU is required; CoreML is diagnostic. <a href="gate3.md">Read the provider decision.</a></li>
+      <li><strong>Gate 4 measures sustained CPU performance. <span class="tag">Passed</span></strong> Each required precision runs for 30 minutes at 45 parts per minute. The runner records raw samples, per-minute tails, pacing, and deadline misses. <a href="sustained.md">Read the sustained results.</a></li>
+      <li><strong>Gate 5 selects a retrospective cost point. <span class="tag">Passed for research</span></strong> The cost rule sweeps 242 cached test thresholds and selects INT8 on CPU. The selection uses configured economic assumptions and meets the research recall and sustained-latency requirements. <a href="scorecard.md">Read the scorecard.</a></li>
+    </ol>
+  </section>
+
+  <section id="results">
+    <h2>We measured the required CPU configurations locally.</h2>
+    <p>The line target allows 1,333.333 milliseconds per part. The following values come directly from <a href="latency.md">the current Gate 3 latency report</a>. FP16 and INT8 describe mixed serialized graphs; they do not imply that every runtime operator uses that precision.</p>
+    <div class="table-wrap"><table><caption style="text-align:left;padding:15px;font-weight:700">Gate 3 reports CPU microbenchmark latency and cached test accuracy.</caption><thead><tr><th>Artifact</th><th>p50 ms</th><th>p95 ms</th><th>p99 ms</th><th>Capacity from p99<br>parts/min</th><th>Image AUROC</th><th>Pixel AUROC</th><th>Frozen-threshold recall</th></tr></thead><tbody>
+      <tr><td>FP32</td><td>12.378</td><td>13.648</td><td>15.437</td><td>3886.77</td><td>0.981746</td><td>0.959094</td><td>0.904762</td></tr>
+      <tr><td>Mixed FP16/FP32</td><td>12.934</td><td>13.351</td><td>14.085</td><td>4259.89</td><td>0.980952</td><td>0.959086</td><td>0.904762</td></tr>
+      <tr><td>Mixed INT8/FP32</td><td>12.086</td><td>12.505</td><td>12.831</td><td>4676.06</td><td>0.980159</td><td>0.958930</td><td>0.904762</td></tr>
+    </tbody></table></div>
+    <p class="label">Capacity from p99 is a derived service-time proxy. Gate 4 supplies the separate measured paced-throughput result. All accuracy figures in this table use the original frozen threshold.</p>
+    <div class="table-wrap"><table><caption style="text-align:left;padding:15px;font-weight:700">Gate 4 reports required CPU runs at the target rate.</caption><thead><tr><th>Artifact</th><th>Minute 1 p99 ms</th><th>Minute 25 p99 ms</th><th>Worst-minute p99 ms</th><th>Achieved parts/min</th><th>Deadline misses</th></tr></thead><tbody>
+      <tr><td>FP32</td><td>25.885</td><td>30.712</td><td>31.073</td><td>45.000</td><td>0</td></tr>
+      <tr><td>Mixed FP16/FP32</td><td>30.774</td><td>29.605</td><td>32.889</td><td>45.000</td><td>0</td></tr>
+      <tr><td>Mixed INT8/FP32</td><td>27.803</td><td>28.615</td><td>29.778</td><td>45.000</td><td>0</td></tr>
+    </tbody></table></div>
+    <p class="label">Each reported minute contains 45 samples. Its empirical p99 is a noisy tail estimate. The telemetry recorded no throttling signal; the workstation did not record ambient temperature or representative enclosure conditions.</p>
+  </section>
+
+  <section id="ane">
+    <h2>We investigated the accelerator failure and recorded its limits.</h2>
+    <div class="notice"><strong>The project makes no ANE performance claim.</strong> Administrator-backed powermetrics captures reported 0.0 mW of ANE power during all three original CoreML workloads. CoreML provider availability and faster timing did not establish Neural Engine placement.</div>
+    <p>We tested alternate CoreML conversion and graph boundaries. FP16 Neural Engine execution failed anomaly-map parity, and ONNX Runtime 1.30 rejected the INT8 graph for complete CoreML placement. The current diagnostic rows still contain ORT CPU fallback. <a href="decisions/0006-coreml-without-ane-requirement.md">ADR 0006</a> records the investigation, and <a href="decisions/0007-coreml-diagnostic-provider.md">ADR 0007</a> records the accepted CPU-only qualification scope.</p>
+    <p>The earlier failed Gate 3 records remain preserved. The later pass reflects a documented scope decision, rather than successful ANE qualification. An accelerator requirement would need a new decision and compatible exports with measured placement and passing parity.</p>
+    <figure><img src="screenshots/04-latency-matrix-and-placement.png" alt="The local evidence dashboard presents the latency matrix and provider placement findings." loading="lazy"><figcaption>The existing dashboard screenshot illustrates how reviewers inspect latency and placement. The <a href="latency.md">current latency report</a> and <a href="../artifacts/gate3.json">Gate 3 JSON</a> remain the authoritative records.</figcaption></figure>
+  </section>
+
+  <section id="economics">
+    <h2>We selected INT8 on CPU for a retrospective research scenario.</h2>
+    <div class="grid">
+      <div class="card"><h3>The cost rule selects INT8.</h3><span class="metric">0.984127</span><span class="label">Recall at the retrospectively selected threshold of 2.089220.</span></div>
+      <div class="card"><h3>The model predicts quality cost.</h3><span class="metric">$27,155.66</span><span class="label">Expected cost per shift under configured illustrative assumptions.</span></div>
+      <div class="card"><h3>The comparison has equal cost.</h3><span class="metric">$0.00</span><span class="label">The expected difference from the maximum-F1 point is zero.</span></div>
+    </div>
+    <p>Gate 5 uses a configured 1% defect prevalence and 21,600 parts per shift. A false accept incurs the configured warranty cost, a false reject incurs scrap cost, and a true reject incurs rework cost. These assumptions come from <a href="../config/costs.yaml">config/costs.yaml</a>; the MVTec test ratio does not supply factory prevalence.</p>
+    <figure><img src="../artifacts/figures/cost-curve.png" alt="The recorded Gate 5 cost curve compares threshold-dependent expected quality costs and prevalence sensitivity." loading="lazy"><figcaption>This existing Gate 5 figure comes from <a href="../artifacts/figures/cost-curve.json">the figure evidence record</a>. The <a href="scorecard.md">scorecard</a> records the assumptions and selected point.</figcaption></figure>
+    <div class="notice"><strong>The selected threshold uses cached test labels.</strong> Its 0.984127 recall is a retrospective research result. The untouched validation-derived threshold achieved 0.904762 recall. The project has not measured commercial savings or independently validated the selected threshold on customer data.</div>
+  </section>
+
+  <section>
+    <h2>We added a read-only surface for reviewing evidence.</h2>
+    <p>The <a href="../dashboard/index.html">local evidence dashboard</a> displays recorded gate values, latency, cost curves, and failure modes. <a href="decisions/0008-evidence-dashboard.md">ADR 0008</a> restricts it to reading evidence. It does not trigger gates, edit measurements, call an LLM, or control a production station.</p>
+    <figure><img src="screenshots/01-summary-and-verdicts.png" alt="The evidence dashboard shows project summary metrics and qualification verdicts." loading="lazy"><figcaption>The existing screenshot shows the dashboard’s review surface. This project record describes the work; the linked JSON records supply the evidence.</figcaption></figure>
+  </section>
+
+  <section id="next">
+    <h2>The remaining work qualifies a real inspection station.</h2>
+    <ul>
+      <li>The project needs customer-owned or appropriately licensed data and independent validation of the selected threshold.</li>
+      <li>The station needs measured camera acquisition, transport, and actuation overhead in its full cycle budget.</li>
+      <li>The deployment needs representative enclosure and ambient conditions, longer shift-soak acceptance, and documented customer recall uncertainty.</li>
+      <li>The release needs an authorized signed manifest, a verified rollback path, and explicit acceptance evidence.</li>
+      <li>An ANE requirement needs new compatible exports and passing placement and numerical parity checks.</li>
+    </ul>
+    <p>MVTec AD is licensed under CC BY-NC-SA 4.0 for noncommercial research. The repository does not distribute dataset images or trained weights. The <a href="production.md">production plan</a> records the commercial extension.</p>
+  </section>
+
+  <section>
+    <h2>The source records preserve the decisions and results.</h2>
+    <ul class="sources"><li><a href="../artifacts/gate0.json">Gate 0 verifies the dataset.</a></li><li><a href="../artifacts/gate1.json">Gate 1 records FP32 training and evaluation.</a></li><li><a href="../artifacts/gate2.json">Gate 2 records export parity and accuracy.</a></li><li><a href="../artifacts/gate3.json">Gate 3 records measured provider rows.</a></li><li><a href="../artifacts/gate4.json">Gate 4 records sustained runs.</a></li><li><a href="../artifacts/gate5.json">Gate 5 records the cost selection.</a></li><li><a href="../artifacts/eval_runs.json">The evaluation ledger records exactly-once runs.</a></li><li><a href="../AGENTS.md">The operating contract defines evidence requirements.</a></li></ul>
+  </section>
+  <footer>This page records the project state on September 16, 2026. It uses existing screenshots, existing research figures, and an explanatory SVG. It contains no credentials, external scripts, or measurement controls. Future gate runs may supersede this snapshot.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,30 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.env
+.env.*
+!.env.example
+data/raw/*
+!data/raw/.gitkeep
+artifacts/*
+!artifacts/eval_runs.json
+*.pt
+*.pth
+*.onnx
+*.mlmodel
+*.mlpackage/
+*.tar
+*.tar.gz
+*.zip
+
+# The dashboard page is source; its generated data file is evidence-derived.
+dashboard/data.json
+
+# Screenshots are documentation, not evidence.
+!docs/screenshots/*.png
+
+# Stray runtime output that is not evidence.
+onnxruntime_profile__*.json
+:memory:*.ses

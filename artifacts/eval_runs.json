@@ -1,0 +1,200 @@
+{
+  "key": "artifact_sha256",
+  "required_entry_fields": [
+    "artifact_sha256",
+    "dataset_sha256",
+    "preprocessing_sha256",
+    "evaluator_sha256",
+    "started_count",
+    "completed_count",
+    "status",
+    "started_at_utc",
+    "completed_at_utc",
+    "prediction_cache_sha256",
+    "canonical_provider",
+    "failure_reason"
+  ],
+  "runs": {
+    "72de92af85d96aa7f689817412610a43adaa3f5e5e6caecdac443bc5f494de58": {
+      "artifact_sha256": "72de92af85d96aa7f689817412610a43adaa3f5e5e6caecdac443bc5f494de58",
+      "canonical_provider": "CPUExecutionProvider",
+      "completed_at_utc": "2026-09-15T19:57:11.153603+00:00",
+      "completed_count": 1,
+      "dataset_sha256": "7ae222188c39aad0ddf5b653f05ad58d7e07fbed45c2b0b2fef02409ace2fb8d",
+      "evaluator_sha256": "7dfd7b87ba677e0f55889f42117da6000253675e6935dd030ccbbaef5d5b3569",
+      "failure_reason": null,
+      "identity": {
+        "canonical_provider": "CPUExecutionProvider",
+        "dataset_sha256": "7ae222188c39aad0ddf5b653f05ad58d7e07fbed45c2b0b2fef02409ace2fb8d",
+        "evaluator_sha256": "7dfd7b87ba677e0f55889f42117da6000253675e6935dd030ccbbaef5d5b3569",
+        "preprocessing_sha256": "622b7463cefcb94b2e516283a211517ed9d842e4c4f832c3ffaa28a63f358432",
+        "threshold_sha256": "3275b4a2212abc45d652c89c71816ab033b45f1ec83baf8231d27581d1222648"
+      },
+      "prediction_cache_sha256": "e4920638e490500a073e7c887a0e9e3c05e576f414f4cb7bc4fbb8d2306a6f6d",
+      "preprocessing_sha256": "622b7463cefcb94b2e516283a211517ed9d842e4c4f832c3ffaa28a63f358432",
+      "result": {
+        "metrics": {
+          "created_at_utc": "2026-09-15T19:57:11.151597+00:00",
+          "path": "/Users/abhishekshah/Desktop/edge/cycletime-inspect/artifacts/evaluation/72de92af85d96aa7f689817412610a43adaa3f5e5e6caecdac443bc5f494de58/metrics.json",
+          "run_id": "9dfea7cb-e6b2-4137-a1fd-faee4a5d2e68",
+          "sha256": "ecd281c71110fb1277ed15fcf6a52e1e747824e174c5d860cf83802f2a498c28"
+        },
+        "samples": {
+          "created_at_utc": "2026-09-15T19:57:11.146008+00:00",
+          "path": "/Users/abhishekshah/Desktop/edge/cycletime-inspect/artifacts/evaluation/72de92af85d96aa7f689817412610a43adaa3f5e5e6caecdac443bc5f494de58/predictions.json",
+          "run_id": "1853b183-b72c-466d-be3d-a8367258518b",
+          "sha256": "e4920638e490500a073e7c887a0e9e3c05e576f414f4cb7bc4fbb8d2306a6f6d"
+        }
+      },
+      "started_at_utc": "2026-09-15T19:56:59.892480+00:00",
+      "started_count": 1,
+      "status": "completed",
+      "threshold_sha256": "3275b4a2212abc45d652c89c71816ab033b45f1ec83baf8231d27581d1222648"
+    },
+    "880c32b18b41b0b40b1f08a9ca7fe2944769ab949130ebd583f08ca489038c0c": {
+      "artifact_sha256": "880c32b18b41b0b40b1f08a9ca7fe2944769ab949130ebd583f08ca489038c0c",
+      "canonical_provider": "CPUExecutionProvider",
+      "completed_at_utc": "2026-09-15T17:24:02.919379+00:00",
+      "completed_count": 1,
+      "dataset_sha256": "7ae222188c39aad0ddf5b653f05ad58d7e07fbed45c2b0b2fef02409ace2fb8d",
+      "evaluator_sha256": "7dfd7b87ba677e0f55889f42117da6000253675e6935dd030ccbbaef5d5b3569",
+      "failure_reason": null,
+      "identity": {
+        "canonical_provider": "CPUExecutionProvider",
+        "dataset_sha256": "7ae222188c39aad0ddf5b653f05ad58d7e07fbed45c2b0b2fef02409ace2fb8d",
+        "evaluator_sha256": "7dfd7b87ba677e0f55889f42117da6000253675e6935dd030ccbbaef5d5b3569",
+        "preprocessing_sha256": "622b7463cefcb94b2e516283a211517ed9d842e4c4f832c3ffaa28a63f358432",
+        "threshold_sha256": "3275b4a2212abc45d652c89c71816ab033b45f1ec83baf8231d27581d1222648"
+      },
+      "prediction_cache_sha256": "1b0a44a753a066abad8c819f74102f3ea7163a4b1b7d64b2f287bdeb4c23bbe5",
+      "preprocessing_sha256": "622b7463cefcb94b2e516283a211517ed9d842e4c4f832c3ffaa28a63f358432",
+      "result": {
+        "metrics": {
+          "created_at_utc": "2026-09-15T17:24:02.915745+00:00",
+          "path": "/Users/abhishekshah/Desktop/edge/cycletime-inspect/artifacts/evaluation/880c32b18b41b0b40b1f08a9ca7fe2944769ab949130ebd583f08ca489038c0c/metrics.json",
+          "run_id": "2db764f2-36fc-4898-b607-3f137b1ebe40",
+          "sha256": "01863070dc17beecacc9ac5b032edbfa51cb25c7937656805767aafbb0cb763a"
+        },
+        "samples": {
+          "created_at_utc": "2026-09-15T17:24:02.907652+00:00",
+          "path": "/Users/abhishekshah/Desktop/edge/cycletime-inspect/artifacts/evaluation/880c32b18b41b0b40b1f08a9ca7fe2944769ab949130ebd583f08ca489038c0c/predictions.json",
+          "run_id": "961c1d33-b777-4f6b-876e-41f6e7063a34",
+          "sha256": "1b0a44a753a066abad8c819f74102f3ea7163a4b1b7d64b2f287bdeb4c23bbe5"
+        }
+      },
+      "started_at_utc": "2026-09-15T17:23:41.942179+00:00",
+      "started_count": 1,
+      "status": "completed",
+      "threshold_sha256": "3275b4a2212abc45d652c89c71816ab033b45f1ec83baf8231d27581d1222648"
+    },
+    "8e78b0855d659be2473f55d69eb91eb063b0ace18f57d9bb5c25984bc34fed9a": {
+      "artifact_sha256": "8e78b0855d659be2473f55d69eb91eb063b0ace18f57d9bb5c25984bc34fed9a",
+      "canonical_provider": "CPUExecutionProvider",
+      "completed_at_utc": "2026-09-15T19:57:33.286179+00:00",
+      "completed_count": 1,
+      "dataset_sha256": "7ae222188c39aad0ddf5b653f05ad58d7e07fbed45c2b0b2fef02409ace2fb8d",
+      "evaluator_sha256": "7dfd7b87ba677e0f55889f42117da6000253675e6935dd030ccbbaef5d5b3569",
+      "failure_reason": null,
+      "identity": {
+        "canonical_provider": "CPUExecutionProvider",
+        "dataset_sha256": "7ae222188c39aad0ddf5b653f05ad58d7e07fbed45c2b0b2fef02409ace2fb8d",
+        "evaluator_sha256": "7dfd7b87ba677e0f55889f42117da6000253675e6935dd030ccbbaef5d5b3569",
+        "preprocessing_sha256": "622b7463cefcb94b2e516283a211517ed9d842e4c4f832c3ffaa28a63f358432",
+        "threshold_sha256": "3275b4a2212abc45d652c89c71816ab033b45f1ec83baf8231d27581d1222648"
+      },
+      "prediction_cache_sha256": "7deac0b671d30c4db7a3878d2abb0c5c8bf1ce3aa6113b24877521a736635d54",
+      "preprocessing_sha256": "622b7463cefcb94b2e516283a211517ed9d842e4c4f832c3ffaa28a63f358432",
+      "result": {
+        "metrics": {
+          "created_at_utc": "2026-09-15T19:57:33.281439+00:00",
+          "path": "/Users/abhishekshah/Desktop/edge/cycletime-inspect/artifacts/evaluation/8e78b0855d659be2473f55d69eb91eb063b0ace18f57d9bb5c25984bc34fed9a/metrics.json",
+          "run_id": "8a8ce904-0b3f-4e7a-9b04-ad1171f7af66",
+          "sha256": "0b00aa3b97073c6c9ab7c98177210270c71789eef507d12d13dde012be0b803e"
+        },
+        "samples": {
+          "created_at_utc": "2026-09-15T19:57:33.278097+00:00",
+          "path": "/Users/abhishekshah/Desktop/edge/cycletime-inspect/artifacts/evaluation/8e78b0855d659be2473f55d69eb91eb063b0ace18f57d9bb5c25984bc34fed9a/predictions.json",
+          "run_id": "69537991-d856-4faa-b28a-3ed04c2a2ec8",
+          "sha256": "7deac0b671d30c4db7a3878d2abb0c5c8bf1ce3aa6113b24877521a736635d54"
+        }
+      },
+      "started_at_utc": "2026-09-15T19:57:13.649945+00:00",
+      "started_count": 1,
+      "status": "completed",
+      "threshold_sha256": "3275b4a2212abc45d652c89c71816ab033b45f1ec83baf8231d27581d1222648"
+    },
+    "9418255f98b1d90623d3d059c39062e34d819312feb0be8450cf1bf8226095c7": {
+      "artifact_sha256": "9418255f98b1d90623d3d059c39062e34d819312feb0be8450cf1bf8226095c7",
+      "canonical_provider": "CPUExecutionProvider",
+      "completed_at_utc": "2026-09-15T19:51:11.084583+00:00",
+      "completed_count": 1,
+      "dataset_sha256": "7ae222188c39aad0ddf5b653f05ad58d7e07fbed45c2b0b2fef02409ace2fb8d",
+      "evaluator_sha256": "7dfd7b87ba677e0f55889f42117da6000253675e6935dd030ccbbaef5d5b3569",
+      "failure_reason": null,
+      "identity": {
+        "canonical_provider": "CPUExecutionProvider",
+        "dataset_sha256": "7ae222188c39aad0ddf5b653f05ad58d7e07fbed45c2b0b2fef02409ace2fb8d",
+        "evaluator_sha256": "7dfd7b87ba677e0f55889f42117da6000253675e6935dd030ccbbaef5d5b3569",
+        "preprocessing_sha256": "622b7463cefcb94b2e516283a211517ed9d842e4c4f832c3ffaa28a63f358432",
+        "threshold_sha256": "3275b4a2212abc45d652c89c71816ab033b45f1ec83baf8231d27581d1222648"
+      },
+      "prediction_cache_sha256": "17278f6dd3c40ab8e03d0457d0345f15534bd6fecf820d85aabcedb3a8eda995",
+      "preprocessing_sha256": "622b7463cefcb94b2e516283a211517ed9d842e4c4f832c3ffaa28a63f358432",
+      "result": {
+        "metrics": {
+          "created_at_utc": "2026-09-15T19:51:11.082540+00:00",
+          "path": "/Users/abhishekshah/Desktop/edge/cycletime-inspect/artifacts/evaluation/9418255f98b1d90623d3d059c39062e34d819312feb0be8450cf1bf8226095c7/metrics.json",
+          "run_id": "959527fa-a030-48b3-86fe-5306ce997bbb",
+          "sha256": "e53c2d8aca253da9d40511df875aa87e83082e1febabe60a9edde73978450e56"
+        },
+        "samples": {
+          "created_at_utc": "2026-09-15T19:51:11.078633+00:00",
+          "path": "/Users/abhishekshah/Desktop/edge/cycletime-inspect/artifacts/evaluation/9418255f98b1d90623d3d059c39062e34d819312feb0be8450cf1bf8226095c7/predictions.json",
+          "run_id": "7e99265c-1253-4cb7-a176-eee081357142",
+          "sha256": "17278f6dd3c40ab8e03d0457d0345f15534bd6fecf820d85aabcedb3a8eda995"
+        }
+      },
+      "started_at_utc": "2026-09-15T19:50:51.185056+00:00",
+      "started_count": 1,
+      "status": "completed",
+      "threshold_sha256": "3275b4a2212abc45d652c89c71816ab033b45f1ec83baf8231d27581d1222648"
+    },
+    "9a47982e48c6797d2d2954b5c739d80f1bcfab9ba472e92a4ce61861af23094d": {
+      "artifact_sha256": "9a47982e48c6797d2d2954b5c739d80f1bcfab9ba472e92a4ce61861af23094d",
+      "canonical_provider": "CPUExecutionProvider",
+      "completed_at_utc": "2026-09-15T19:50:50.196044+00:00",
+      "completed_count": 1,
+      "dataset_sha256": "7ae222188c39aad0ddf5b653f05ad58d7e07fbed45c2b0b2fef02409ace2fb8d",
+      "evaluator_sha256": "7dfd7b87ba677e0f55889f42117da6000253675e6935dd030ccbbaef5d5b3569",
+      "failure_reason": null,
+      "identity": {
+        "canonical_provider": "CPUExecutionProvider",
+        "dataset_sha256": "7ae222188c39aad0ddf5b653f05ad58d7e07fbed45c2b0b2fef02409ace2fb8d",
+        "evaluator_sha256": "7dfd7b87ba677e0f55889f42117da6000253675e6935dd030ccbbaef5d5b3569",
+        "preprocessing_sha256": "622b7463cefcb94b2e516283a211517ed9d842e4c4f832c3ffaa28a63f358432",
+        "threshold_sha256": "3275b4a2212abc45d652c89c71816ab033b45f1ec83baf8231d27581d1222648"
+      },
+      "prediction_cache_sha256": "f10a5833cec8e0dc5b95ccc3b21a75af04758a63c92bf9e3d4f7ace98e8a9a41",
+      "preprocessing_sha256": "622b7463cefcb94b2e516283a211517ed9d842e4c4f832c3ffaa28a63f358432",
+      "result": {
+        "metrics": {
+          "created_at_utc": "2026-09-15T19:50:50.192769+00:00",
+          "path": "/Users/abhishekshah/Desktop/edge/cycletime-inspect/artifacts/evaluation/9a47982e48c6797d2d2954b5c739d80f1bcfab9ba472e92a4ce61861af23094d/metrics.json",
+          "run_id": "2c4ab26d-a070-4918-8a00-af49c94b4d56",
+          "sha256": "67707d42bfb2e3bbbc0d2bfb559235106ebf7017529f6248295cc7e8fadee1ef"
+        },
+        "samples": {
+          "created_at_utc": "2026-09-15T19:50:50.189102+00:00",
+          "path": "/Users/abhishekshah/Desktop/edge/cycletime-inspect/artifacts/evaluation/9a47982e48c6797d2d2954b5c739d80f1bcfab9ba472e92a4ce61861af23094d/predictions.json",
+          "run_id": "685a7a1d-8779-43e9-a0f0-93e52ecf4cc2",
+          "sha256": "f10a5833cec8e0dc5b95ccc3b21a75af04758a63c92bf9e3d4f7ace98e8a9a41"
+        }
+      },
+      "started_at_utc": "2026-09-15T19:50:29.945581+00:00",
+      "started_count": 1,
+      "status": "completed",
+      "threshold_sha256": "3275b4a2212abc45d652c89c71816ab033b45f1ec83baf8231d27581d1222648"
+    }
+  },
+  "schema_version": 1
+}

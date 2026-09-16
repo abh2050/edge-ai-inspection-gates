@@ -1,0 +1,35 @@
+schema_version: 1
+enabled: false
+transport: json_over_https
+endpoint_env: CYCLETIME_LLM_ENDPOINT
+api_key_env: CYCLETIME_LLM_API_KEY
+model_env: CYCLETIME_LLM_MODEL
+wire_protocol: provider_adapter_required
+timeout_seconds: 30
+max_retries: 2
+max_steps: 12
+max_tool_calls: 8
+max_input_tokens: 12000
+max_output_tokens: 1500
+max_wall_seconds: 300
+max_measurement_wall_seconds: 14400
+allow_long_measurements: false
+sampling_temperature: 0
+require_structured_output: true
+require_evidence_citations: true
+allow_raw_images_to_leave_host: false
+network_destinations_from_explicit_config_only: true
+cost_config: config/costs.yaml
+knowledge:
+  approved_manifest: null
+  enforce_tenant_scope: true
+  treat_documents_as_untrusted: true
+allowed_tools: [read_evidence, retrieve_procedure, propose_experiment, run_gate, render_explanation]
+forbidden_actions: [shell, change_costs, change_threshold, approve_release, activate_model, actuate_line]
+execution:
+  proposal_path: artifacts/agent/proposal.json
+  authorization_path: null
+  checkpoint_path: artifacts/agent/checkpoint.json
+  audit_path: artifacts/agent/audit.jsonl
+  require_authorized_plan_digest: true
+  gate_allowlist: [0, 1, 2, 3, 4, 5]

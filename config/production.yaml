@@ -1,0 +1,37 @@
+schema_version: 1
+release_enabled: false
+customer_dataset_manifest: null
+commercial_rights_record: null
+camera_contract: null
+station_contract: null
+acceptance:
+  line_rate_parts_per_minute: 45
+  minimum_recall: 0.95
+  maximum_false_reject_rate: null
+  maximum_deadline_miss_rate: 0.0
+  confidence_level: 0.95
+  minimum_defective_test_parts: null
+  shift_soak_hours: 8
+  minimum_soak_shifts: 3
+  maximum_restart_seconds: null
+  maximum_rollback_seconds: null
+runtime:
+  offline_inspection_required: true
+  unknown_or_late_frame_action: controlled_station_fault
+  maximum_frame_age_ms: null
+  trusted_release_keys: []
+  current_release_manifest: null
+  rollback_release_manifest: null
+telemetry:
+  record_frame_ids: true
+  record_scores: true
+  record_deadline_misses: true
+  record_temperature_when_available: true
+  raw_image_retention_days: 0
+  log_retention_days: 30
+  require_tenant_isolation: true
+release:
+  require_signed_manifest: true
+  require_sbom: true
+  require_locked_dependencies: true
+  require_customer_acceptance: true

@@ -1,0 +1,35 @@
+schema_version: 1
+name: mvtec_ad
+source_page: https://www.mvtec.com/research-teaching/datasets/mvtec-ad
+license: CC-BY-NC-SA-4.0
+usage: noncommercial_research
+manifest: data/manifest.json
+root: data/raw/mvtec_ad
+category: bottle
+expected_category_count: 15
+objects: [bottle, cable, capsule, hazelnut, metal_nut, pill, screw, toothbrush, transistor, zipper]
+textures: [carpet, grid, leather, tile, wood]
+train:
+  split: train
+  allowed_labels: [good]
+  seed: 42
+  normal_validation_fraction: 0.20
+  calibration_source: training_fit_partition
+  calibration_replacement: false
+test:
+  split: test
+  mask_directory: ground_truth
+  canonical_provider: CPUExecutionProvider
+  maximum_full_evaluations_per_artifact: 1
+  predictions_cache: artifacts/evaluation
+  ledger: artifacts/eval_runs.json
+input:
+  approximate_original_size_px: [700, 1024]
+  resized_height: 256
+  resized_width: 256
+  image_interpolation: bilinear
+  mask_interpolation: nearest
+  color: RGB
+  layout: NCHW
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]

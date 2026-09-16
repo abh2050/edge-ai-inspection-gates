@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cycle Time Evidence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#F1F4F3; --surface:#FFFFFF; --sunk:#E7ECEB; --raised:#FBFCFC;
+  --ink:#101718; --ink-soft:#485658; --ink-faint:#71858A;
+  --rule:rgba(16,23,24,.13); --rule-strong:rgba(16,23,24,.26);
+  --accent:#0E7C86; --accent-soft:rgba(14,124,134,.12);
+  --pass:#2E7A4E; --fail:#B03A2D; --caution:#B0730C;
+  --pass-soft:rgba(46,122,78,.12); --fail-soft:rgba(176,58,45,.10); --caution-soft:rgba(176,115,12,.12);
+  --fp32:#0E7C86; --fp16:#B0730C; --int8:#7A4FB0;
+  --on-accent:#FFFFFF;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0D1315; --surface:#151D1F; --sunk:#101718; --raised:#1B2427;
+    --ink:#E7EEED; --ink-soft:#A2B3B6; --ink-faint:#7B8F93;
+    --rule:rgba(231,238,237,.16); --rule-strong:rgba(231,238,237,.3);
+    --accent:#3FBAC5; --accent-soft:rgba(63,186,197,.16);
+    --pass:#5CB47C; --fail:#E3786A; --caution:#DFA337;
+    --pass-soft:rgba(92,180,124,.14); --fail-soft:rgba(227,120,106,.14); --caution-soft:rgba(223,163,55,.14);
+    --fp32:#3FBAC5; --fp16:#DFA337; --int8:#B08CE0; --on-accent:#0D1315;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0D1315; --surface:#151D1F; --sunk:#101718; --raised:#1B2427;
+  --ink:#E7EEED; --ink-soft:#A2B3B6; --ink-faint:#7B8F93;
+  --rule:rgba(231,238,237,.16); --rule-strong:rgba(231,238,237,.3);
+  --accent:#3FBAC5; --accent-soft:rgba(63,186,197,.16);
+  --pass:#5CB47C; --fail:#E3786A; --caution:#DFA337;
+  --pass-soft:rgba(92,180,124,.14); --fail-soft:rgba(227,120,106,.14); --caution-soft:rgba(223,163,55,.14);
+  --fp32:#3FBAC5; --fp16:#DFA337; --int8:#B08CE0; --on-accent:#0D1315;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.shell{max-width:1200px;margin:0 auto;padding-block:clamp(26px,4.5vw,52px);padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right));display:flex;flex-direction:column;gap:clamp(32px,4.5vw,52px)}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.015em}
+h1{font-size:clamp(29px,4.4vw,44px);line-height:1.09;font-weight:700}
+h2{font-size:clamp(19px,2.2vw,22px)}
+h3{font-size:15px}
+p{margin:0;max-width:70ch}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.caption{font-size:13px;color:var(--ink-faint);max-width:80ch}
+.source{font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+b{font-weight:600}
+code{font-family:var(--mono)}
+
+.masthead{display:flex;flex-direction:column;gap:16px}
+.lede{font-size:clamp(16px,1.85vw,18px);color:var(--ink-soft)}
+.hostbar{display:flex;flex-wrap:wrap;gap:6px 22px;padding-top:14px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:11.5px;color:var(--ink-faint)}
+.hostbar b{color:var(--ink-soft);font-weight:500}
+
+.verdicts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.verdict{padding:22px 24px;background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--edge,var(--accent));display:flex;flex-direction:column;gap:9px}
+.verdict.good{--edge:var(--pass)} .verdict.bad{--edge:var(--fail)}
+.figure{font-family:var(--mono);font-size:clamp(29px,4.2vw,39px);font-weight:600;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.verdict.good .figure{color:var(--pass)} .verdict.bad .figure{color:var(--fail)}
+.claim{font-weight:600;font-size:16px}
+.verdict p{font-size:14px;color:var(--ink-soft)}
+
+.chain{display:flex;flex-wrap:wrap;gap:8px}
+.gate{flex:1 1 132px;min-width:118px;padding:11px 13px;background:var(--surface);border:1px solid var(--rule);border-top:3px solid var(--edge,var(--accent));display:flex;flex-direction:column;gap:2px}
+.gate.pass{--edge:var(--pass)} .gate.fail{--edge:var(--fail)}
+.gate .name{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+.gate .state{font-weight:600;font-size:13.5px}
+.gate.pass .state{color:var(--pass)} .gate.fail .state{color:var(--fail)}
+.gate .what{font-size:12px;color:var(--ink-soft);line-height:1.38}
+
+section{display:flex;flex-direction:column;gap:15px}
+.sechead{display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--rule);padding-bottom:11px}
+.panel{background:var(--surface);border:1px solid var(--rule)}
+.panel .bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:11px 16px;border-bottom:1px solid var(--rule);background:var(--raised)}
+.panel .body{padding:16px}
+.chartwrap{overflow-x:auto}
+svg{display:block;width:100%;height:auto;touch-action:pan-y}
+svg text{font-family:var(--mono);fill:var(--ink-faint)}
+
+.controls{display:inline-flex;align-items:center;gap:8px}
+.controls .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+.seg{display:inline-flex;border:1px solid var(--rule-strong);overflow:hidden}
+.seg button{appearance:none;border:0;background:transparent;color:var(--ink-soft);font-family:var(--mono);font-size:12px;padding:5px 11px;cursor:pointer;border-right:1px solid var(--rule)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.toggle{appearance:none;border:1px solid var(--rule-strong);background:transparent;color:var(--ink-faint);font-family:var(--mono);font-size:12px;padding:5px 11px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.toggle[aria-pressed="true"]{color:var(--ink);border-color:currentColor}
+.toggle .dot{width:11px;height:11px;border-radius:2px;background:var(--dot);opacity:.28}
+.toggle[aria-pressed="true"] .dot{opacity:1}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:14px}
+.readout div{background:var(--surface);padding:9px 12px;display:flex;flex-direction:column;gap:2px}
+.readout .k{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+.readout .v{font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums}
+.readout .v.good{color:var(--pass)} .readout .v.bad{color:var(--fail)}
+.hint{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:9px}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.swatch{width:14px;height:3px;border-radius:2px;display:inline-block}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--rule)}
+thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-faint);font-weight:500;background:var(--sunk)}
+tbody tr:last-child td{border-bottom:none}
+td.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.diag td{color:var(--ink-soft)}
+tr.mark td{background:var(--accent-soft)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+.pill.req{background:var(--accent-soft);color:var(--accent)}
+.pill.diag{background:var(--caution-soft);color:var(--caution)}
+.pill.no{background:var(--fail-soft);color:var(--fail)}
+.pill.yes{background:var(--pass-soft);color:var(--pass)}
+
+.caught{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px}
+.caught article{display:flex;flex-direction:column;gap:7px;padding-left:15px;border-left:2px solid var(--caution)}
+.caught p{font-size:13.5px;color:var(--ink-soft)}
+.limits{display:flex;flex-direction:column;gap:9px;max-width:82ch;font-size:14px;color:var(--ink-soft)}
+.limits b{color:var(--ink)}
+.unmet{display:flex;flex-wrap:wrap;gap:6px}
+.unmet code{font-size:11.5px;background:var(--fail-soft);color:var(--fail);padding:3px 8px}
+footer{border-top:1px solid var(--rule);padding-top:15px;font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);display:flex;flex-wrap:wrap;gap:6px 20px}
+.err{padding:20px;border:1px solid var(--fail);background:var(--fail-soft);color:var(--fail);font-family:var(--mono);font-size:13px}
+@media (prefers-reduced-motion:no-preference){
+  .seg button,.toggle{transition:background .12s ease,color .12s ease,border-color .12s ease}
+}
+</style>
+</head>
+<body>
+<div class="shell" id="shell">
+  <div class="err" id="boot">Loading recorded evidence from <code>data.json</code>…</div>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+const SVGTAGS = new Set(["svg","g","path","line","rect","circle","text","polyline","polygon"]);
+const el = (tag, attrs = {}, kids = []) => {
+  const node = SVGTAGS.has(tag) ? document.createElementNS(SVGNS, tag) : document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v === null || v === undefined) continue;
+    if (k === "text") node.textContent = v;
+    else if (k === "html") node.innerHTML = v;
+    else if (k === "on") for (const [evt, fn] of Object.entries(v)) node.addEventListener(evt, fn);
+    else node.setAttribute(k, v);
+  }
+  for (const kid of [].concat(kids)) if (kid) node.appendChild(kid);
+  return node;
+};
+const F = (v, d = 3) => Number(v).toFixed(d);
+const money = v => Number(v).toLocaleString("en-US", {maximumFractionDigits: 0});
+const hue = p => `var(--${p})`;
+const PRECISIONS = ["fp32", "fp16", "int8"];
+
+let D = null;
+const state = {
+  series: {fp32: true, fp16: true, int8: true},
+  metric: "p99_ms",
+  prevalence: null,
+  cursor: null,
+  showDiagnostic: true,
+};
+
+/* ---------- chart scaffolding ---------- */
+function frame(g, {x0, x1, y0, y1, ys, xs, yfmt, xfmt, xlabel, ylabel}) {
+  for (const t of ys) {
+    g.appendChild(el("line", {x1: x0, x2: x1, y1: t.y, y2: t.y, stroke: "currentColor", "stroke-opacity": t.v === 0 ? .32 : .12}));
+    g.appendChild(el("text", {x: x0 - 10, y: t.y + 4, "text-anchor": "end", "font-size": 11, text: yfmt(t.v)}));
+  }
+  for (const t of xs) g.appendChild(el("text", {x: t.x, y: y1 + 20, "text-anchor": "middle", "font-size": 11, text: xfmt(t.v)}));
+  if (xlabel) g.appendChild(el("text", {x: (x0 + x1) / 2, y: y1 + 40, "text-anchor": "middle", "font-size": 10.5, "letter-spacing": ".1em", text: xlabel}));
+  if (ylabel) g.appendChild(el("text", {x: 15, y: (y0 + y1) / 2, "text-anchor": "middle", "font-size": 10.5, "letter-spacing": ".1em", transform: `rotate(-90 13 ${(y0 + y1) / 2})`, text: ylabel}));
+}
+const visible = () => PRECISIONS.filter(p => state.series[p]);
+
+/* ---------- sustained ---------- */
+function sustainedChart() {
+  const W = 1040, H = 340, x0 = 60, x1 = W - 16, y0 = 22, y1 = H - 52;
+  const rows = D.sustained.filter(s => state.series[s.precision]);
+  const svg = el("svg", {viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Per-minute latency across thirty paced minutes"});
+  const g = el("g", {color: "var(--ink-faint)"});
+  const values = rows.flatMap(s => s.minutes.map(m => m[state.metric]));
+  const top = values.length ? Math.ceil(Math.max(...values) / 5) * 5 + 5 : 40;
+  const sx = m => x0 + (m - 1) / 29 * (x1 - x0);
+  const sy = v => y1 - v / top * (y1 - y0);
+  const ys = []; for (let v = 0; v <= top; v += 5) ys.push({v, y: sy(v)});
+  const xs = [1, 5, 10, 15, 20, 25, 30].map(v => ({v, x: sx(v)}));
+  frame(g, {x0, x1, y0, y1, ys, xs, yfmt: v => v, xfmt: v => v, xlabel: "MINUTE OF THE PACED RUN", ylabel: state.metric === "p99_ms" ? "p99 MILLISECONDS" : "p50 MILLISECONDS"});
+  for (const s of rows) {
+    g.appendChild(el("polyline", {points: s.minutes.map(m => `${sx(m.minute)},${sy(m[state.metric])}`).join(" "), fill: "none", stroke: hue(s.precision), "stroke-width": 2, "stroke-linejoin": "round"}));
+    const worst = s.minutes.reduce((a, b) => (b[state.metric] > a[state.metric] ? b : a));
+    g.appendChild(el("circle", {cx: sx(worst.minute), cy: sy(worst[state.metric]), r: 4.5, fill: hue(s.precision)}));
+    g.appendChild(el("text", {x: sx(worst.minute), y: sy(worst[state.metric]) - 11, "text-anchor": "middle", "font-size": 11, fill: hue(s.precision), text: F(worst[state.metric], 1)}));
+  }
+  svg.appendChild(g);
+  return svg;
+}
+
+/* ---------- cost, with threshold inspector ---------- */
+function costChart() {
+  const W = 1040, H = 360, x0 = 108, x1 = W - 16, y0 = 22, y1 = H - 52;
+  const curves = D.curves.filter(c => state.series[c.precision]);
+  const all = curves.flatMap(c => c.points);
+  const svg = el("svg", {viewBox: `0 0 ${W} ${H}`, role: "slider", tabindex: "0",
+    "aria-label": "Expected cost by decision threshold. Arrow keys step through recorded thresholds."});
+  if (!all.length) { svg.appendChild(el("text", {x: W / 2, y: H / 2, "text-anchor": "middle", "font-size": 13, text: "no artifact selected"})); return svg; }
+  const cost = p => p.cost_by_prevalence[state.prevalence];
+  const lo = Math.min(...all.map(p => p.threshold)), hi = Math.max(...all.map(p => p.threshold));
+  const top = Math.max(...all.map(cost));
+  const step = Math.pow(10, Math.floor(Math.log10(top))) / 2;
+  const ceiling = Math.ceil(top / step) * step;
+  const sx = t => x0 + (t - lo) / (hi - lo) * (x1 - x0);
+  const sy = v => y1 - v / ceiling * (y1 - y0);
+  const g = el("g", {color: "var(--ink-faint)"});
+  const ys = []; for (let v = 0; v <= ceiling + 1; v += ceiling / 5) ys.push({v, y: sy(v)});
+  const xs = []; for (let i = 0; i <= 5; i++) xs.push({v: lo + (hi - lo) * i / 5, x: sx(lo + (hi - lo) * i / 5)});
+  frame(g, {x0, x1, y0, y1, ys, xs, yfmt: v => "$" + money(v), xfmt: v => F(v, 2), xlabel: "DECISION THRESHOLD ON THE IMAGE ANOMALY SCORE", ylabel: "EXPECTED COST PER SHIFT (USD)"});
+
+  const floor = D.costs.minimum_defect_recall;
+  const primary = curves.find(c => c.precision === "int8") || curves[0];
+  const ordered = [...primary.points].sort((a, b) => a.threshold - b.threshold);
+  const lastFeasible = [...ordered].reverse().find(p => p.recall >= floor);
+  if (lastFeasible) {
+    const edge = sx(lastFeasible.threshold);
+    g.appendChild(el("rect", {x: edge, y: y0, width: Math.max(0, x1 - edge), height: y1 - y0, fill: "var(--fail)", "fill-opacity": .06}));
+    g.appendChild(el("line", {x1: edge, x2: edge, y1: y0, y2: y1, stroke: "var(--fail)", "stroke-width": 1.4, "stroke-dasharray": "3 4"}));
+    g.appendChild(el("text", {x: edge + 7, y: y0 + 15, "font-size": 10.5, fill: "var(--fail)", text: `recall < ${floor} →`}));
+  }
+  for (const c of curves) {
+    const pts = [...c.points].sort((a, b) => a.threshold - b.threshold);
+    g.appendChild(el("polyline", {points: pts.map(p => `${sx(p.threshold)},${sy(cost(p))}`).join(" "), fill: "none", stroke: hue(c.precision), "stroke-width": 2}));
+  }
+  const sel = D.selected_point;
+  if (state.prevalence === String(D.costs.production_defect_prevalence)) {
+    g.appendChild(el("circle", {cx: sx(sel.threshold), cy: sy(sel.expected_cost_usd_per_shift), r: 6, fill: "none", stroke: "var(--ink)", "stroke-width": 2}));
+    g.appendChild(el("text", {x: sx(sel.threshold) - 10, y: sy(sel.expected_cost_usd_per_shift) - 12, "text-anchor": "end", "font-size": 11, fill: "var(--ink)", text: `gate 5 selected · $${money(sel.expected_cost_usd_per_shift)}`}));
+  }
+  if (state.cursor !== null) {
+    const t = state.cursor;
+    g.appendChild(el("line", {x1: sx(t), x2: sx(t), y1: y0, y2: y1, stroke: "var(--accent)", "stroke-width": 1.4}));
+    for (const c of curves) {
+      const p = nearest(c, t);
+      g.appendChild(el("circle", {cx: sx(p.threshold), cy: sy(cost(p)), r: 4, fill: hue(c.precision), stroke: "var(--surface)", "stroke-width": 1.5}));
+    }
+  }
+  svg.appendChild(g);
+
+  const pick = clientX => {
+    const box = svg.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, ((clientX - box.left) / box.width * W - x0) / (x1 - x0)));
+    const chosen = nearest(primary, lo + ratio * (hi - lo)).threshold;
+    if (chosen !== state.cursor) { state.cursor = chosen; update(); }
+  };
+  svg.addEventListener("pointermove", e => pick(e.clientX));
+  svg.addEventListener("pointerleave", () => { state.cursor = null; update(); });
+  svg.addEventListener("keydown", e => {
+    const list = ordered.map(p => p.threshold);
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+    e.preventDefault();
+    let i = state.cursor === null ? list.indexOf(nearest(primary, sel.threshold).threshold) : list.indexOf(nearest(primary, state.cursor).threshold);
+    if (e.key === "ArrowLeft") i = Math.max(0, i - 1);
+    if (e.key === "ArrowRight") i = Math.min(list.length - 1, i + 1);
+    if (e.key === "Home") i = 0;
+    if (e.key === "End") i = list.length - 1;
+    state.cursor = list[i];
+    update();
+  });
+  return svg;
+}
+const nearest = (curve, t) => curve.points.reduce((a, b) => (Math.abs(b.threshold - t) < Math.abs(a.threshold - t) ? b : a));
+
+function readout() {
+  const wrap = el("div", {class: "readout", id: "readout"});
+  const curves = D.curves.filter(c => state.series[c.precision]);
+  const primary = curves.find(c => c.precision === "int8") || curves[0];
+  if (!primary) return wrap;
+  const t = state.cursor === null ? D.selected_point.threshold : state.cursor;
+  const p = nearest(primary, t);
+  const floor = D.costs.minimum_defect_recall;
+  const cells = [
+    ["artifact", primary.precision.toUpperCase(), ""],
+    ["threshold", F(p.threshold, 4), ""],
+    ["recall", F(p.recall, 4), p.recall >= floor ? "good" : "bad"],
+    ["false rejects", F(p.false_reject_rate, 4), p.false_reject_rate > 0.02 ? "bad" : "good"],
+    ["F1", F(p.f1, 4), ""],
+    ["cost / shift", "$" + money(p.cost_by_prevalence[state.prevalence]), ""],
+    ["TP / FN", `${p.tp} / ${p.fn}`, ""],
+    ["FP / TN", `${p.fp} / ${p.tn}`, ""],
+  ];
+  for (const [k, v, tone] of cells) {
+    wrap.appendChild(el("div", {}, [el("span", {class: "k", text: k}), el("span", {class: `v ${tone}`, text: v})]));
+  }
+  return wrap;
+}
+
+/* ---------- controls ---------- */
+function seriesToggles() {
+  const wrap = el("div", {class: "controls"}, el("span", {class: "lbl", text: "artifacts"}));
+  for (const p of PRECISIONS) {
+    wrap.appendChild(el("button", {
+      class: "toggle", type: "button", "data-series": p, "aria-pressed": String(state.series[p]), style: `--dot:${hue(p)}`,
+      on: {click: () => { state.series[p] = !state.series[p]; if (!visible().length) state.series[p] = true; update(); }},
+    }, [el("span", {class: "dot"}), el("span", {text: p.toUpperCase()})]));
+  }
+  return wrap;
+}
+function segmented(label, options, current, onPick, key) {
+  const seg = el("div", {class: "seg"});
+  for (const [value, text] of options) {
+    seg.appendChild(el("button", {type: "button", [`data-${key}`]: value, "aria-pressed": String(value === current), text, on: {click: () => onPick(value)}}));
+  }
+  return el("div", {class: "controls"}, [el("span", {class: "lbl", text: label}), seg]);
+}
+
+/* ---------- tables ---------- */
+function table(headers, rows) {
+  const t = el("table");
+  t.appendChild(el("thead", {}, el("tr", {}, headers.map(h => el("th", {text: h})))));
+  const body = el("tbody");
+  for (const r of rows) {
+    const tr = el("tr", r.cls ? {class: r.cls} : {});
+    r.cells.forEach(c => tr.appendChild(el("td", {class: c.n ? "n" : "", html: c.html ?? String(c.v)})));
+    body.appendChild(tr);
+  }
+  t.appendChild(body);
+  return el("div", {class: "tablewrap"}, t);
+}
+
+/* ---------- update (charts + live regions) ---------- */
+function update() {
+  const swap = (id, node) => { const host = document.getElementById(id); if (host) { host.textContent = ""; host.appendChild(node); } };
+  swap("sustained-chart", sustainedChart());
+  swap("cost-chart", costChart());
+  swap("readout-host", readout());
+  swap("micro-table", microTable());
+  for (const b of document.querySelectorAll("[data-series]")) b.setAttribute("aria-pressed", String(state.series[b.dataset.series]));
+  for (const b of document.querySelectorAll("[data-metric]")) b.setAttribute("aria-pressed", String(b.dataset.metric === state.metric));
+  for (const b of document.querySelectorAll("[data-prev]")) b.setAttribute("aria-pressed", String(b.dataset.prev === state.prevalence));
+  for (const b of document.querySelectorAll("[data-diag]")) b.setAttribute("aria-pressed", String(state.showDiagnostic));
+}
+
+function microTable() {
+  const rows = D.micro.filter(m => (state.showDiagnostic || m.required) && state.series[m.precision]);
+  return table(
+    ["Artifact", "Provider", "Role", "p50 ms", "p95 ms", "p99 ms", "Placement observed"],
+    rows.map(m => ({
+      cls: m.required ? "" : "diag",
+      cells: [
+        {v: m.precision.toUpperCase()}, {v: m.provider},
+        {html: m.required ? '<span class="pill req">required</span>' : '<span class="pill diag">diagnostic</span>'},
+        {v: F(m.p50_ms), n: 1}, {v: F(m.p95_ms), n: 1}, {v: F(m.p99_ms), n: 1},
+        {v: m.placement_label},
+      ],
+    }))
+  );
+}
+
+/* ---------- page ---------- */
+function render(d) {
+  D = d;
+  state.prevalence = String(d.costs.production_defect_prevalence);
+  const shell = document.getElementById("shell");
+  shell.textContent = "";
+  const sel = d.selected_point;
+  const scrap = d.costs.parts_per_shift * (1 - d.costs.production_defect_prevalence) * sel.false_reject_rate * d.costs.scrap_cost_usd;
+  const warranty = d.costs.parts_per_shift * d.costs.production_defect_prevalence * (1 - sel.recall) * d.costs.warranty_return_cost_usd;
+  const worst = Math.max(...d.sustained.map(s => s.worst_minute_p99_ms));
+  const margin = d.line.allowance_ms / worst;
+  const frozen = d.accuracy.find(a => a.precision === "fp32");
+  const frames = d.sustained.reduce((n, s) => n + s.completed_count, 0);
+
+  shell.appendChild(el("header", {class: "masthead"}, [
+    el("p", {class: "eyebrow", text: "Measurement report · MVTec AD bottle category · recorded gate evidence"}),
+    el("h1", {text: "Cycle-time feasibility and expected cost of an edge anomaly detector"}),
+    el("p", {class: "lede", html: `A student-teacher anomaly detector was exported at three precisions and measured on one Apple silicon host against a ${d.line.rate_parts_per_minute} part-per-minute line rate. Worst-minute p99 latency across ninety paced minutes is ${F(worst, 1)} ms, a factor of ${F(margin, 0)} below the ${F(d.line.allowance_ms, 1)} ms cycle allowance. At the configured recall floor of ${d.costs.minimum_defect_recall}, the selected operating point rejects ${F(sel.false_reject_rate * 100, 1)}% of normal parts and carries an expected quality cost of $${money(sel.expected_cost_usd_per_shift)} per shift under the configured assumptions.`}),
+    el("div", {class: "hostbar"}, [
+      el("span", {html: `<b>Host</b> ${d.host.model} · ${d.host.chip}`}),
+      el("span", {html: `<b>macOS</b> ${d.host.macos_version}`}),
+      el("span", {html: `<b>ONNX Runtime</b> ${d.host.onnxruntime_version}`}),
+      el("span", {html: `<b>Threads</b> ${d.host.threads.intra_op} intra / ${d.host.threads.inter_op} inter · batch 1`}),
+      el("span", {html: `<b>Data built</b> ${d.generated_at_utc.slice(0, 16).replace("T", " ")} UTC`}),
+    ]),
+  ]));
+
+  shell.appendChild(el("div", {class: "verdicts"}, [
+    el("div", {class: "verdict good"}, [
+      el("p", {class: "eyebrow", text: "Cycle time · gate 4"}),
+      el("div", {class: "figure", text: `${F(worst, 1)} ms`}),
+      el("div", {class: "claim", text: `Worst reporting minute of ninety paced minutes against a ${F(d.line.allowance_ms, 1)} ms allowance`}),
+      el("p", {text: `${frames} frames were paced at ${d.line.rate_parts_per_minute} parts per minute across three artifacts. No slot was missed, no deadline was exceeded, and the thermal telemetry recorded no throttling signal.`}),
+    ]),
+    el("div", {class: "verdict bad"}, [
+      el("p", {class: "eyebrow", text: "Economics · gate 5"}),
+      el("div", {class: "figure", text: `$${money(sel.expected_cost_usd_per_shift)}`}),
+      el("div", {class: "claim", text: `Expected cost per shift at the least costly point satisfying the ${d.costs.minimum_defect_recall} recall floor`}),
+      el("p", {html: `The point attains recall ${F(sel.recall, 3)} at a false-reject rate of <b>${F(sel.false_reject_rate, 3)}</b>. Rejected normal parts contribute $${money(scrap)} of the expected cost and escaped defects contribute $${money(warranty)}.`}),
+    ]),
+  ]));
+
+  const what = {gate0: "Dataset provenance and category checks", gate1: "Training, FP32 export, one evaluation",
+    gate2: "FP16 and INT8 parity and accuracy", gate3: "Latency matrix and placement evidence",
+    gate4: "Thirty paced minutes per required pair", gate5: "Cost curve and operating point"};
+  const chain = el("div", {class: "chain"});
+  for (const [name, row] of Object.entries(d.gates)) {
+    chain.appendChild(el("div", {class: `gate ${row.status === "passed" ? "pass" : "fail"}`}, [
+      el("div", {class: "name", text: name.replace("gate", "gate ")}),
+      el("div", {class: "state", text: row.status}),
+      el("div", {class: "what", text: what[name]}),
+    ]));
+  }
+  chain.appendChild(el("div", {class: "gate fail"}, [
+    el("div", {class: "name", text: "release"}),
+    el("div", {class: "state", text: "not qualified"}),
+    el("div", {class: "what", text: `${d.release_check.unmet_conditions.length} unmet commercial conditions`}),
+  ]));
+  shell.appendChild(el("section", {}, [
+    el("div", {class: "sechead"}, [
+      el("h2", {text: "Gate chain and evidence dependencies"}),
+      el("p", {class: "caption", text: "Each gate validates the preceding gate's evidence by digest before executing. A failed placement check, an absent measurement, or a modified record halts the chain."}),
+    ]),
+    chain,
+  ]));
+
+  // sustained
+  shell.appendChild(el("section", {}, [
+    el("div", {class: "sechead"}, [
+      el("h2", {text: "Sustained latency across thirty paced minutes"}),
+      el("p", {class: "caption", text: "Each point summarizes one reporting minute of 45 paced frames. Minute 1 and minute 25 differ by approximately one millisecond for every artifact, which provides no evidence of drift over the run."}),
+    ]),
+    el("div", {class: "panel"}, [
+      el("div", {class: "bar"}, [
+        seriesToggles(),
+        segmented("statistic", [["p99_ms", "p99"], ["p50_ms", "p50"]], state.metric, v => { state.metric = v; update(); }, "metric"),
+      ]),
+      el("div", {class: "body"}, [
+        el("div", {class: "chartwrap", id: "sustained-chart"}),
+        el("div", {class: "legend"}, [
+          ...d.sustained.map(s => el("span", {}, [el("i", {class: "swatch", style: `background:${hue(s.precision)}`}), el("span", {text: `${s.precision.toUpperCase()} · ${s.completed_count} frames · ${s.missed_slot_count} missed`})])),
+          el("span", {text: `allowance ${F(d.line.allowance_ms, 1)} ms sits ${F(margin, 0)}× above this frame`}),
+        ]),
+      ]),
+    ]),
+    el("p", {class: "source", text: "Source: artifacts/thermal/summary.json · gate 4"}),
+  ]));
+
+  // cost + inspector
+  shell.appendChild(el("section", {}, [
+    el("div", {class: "sechead"}, [
+      el("h2", {text: "Expected cost as a function of decision threshold"}),
+      el("p", {class: "caption", html: `Pointer hover or keyboard focus with the arrow keys selects a recorded threshold. Reported values are read from the gate 5 cost curve; no value is interpolated. The prevalence control selects among the three rates the curve recorded, of which ${d.costs.production_defect_prevalence} is the configured production rate.`}),
+    ]),
+    el("div", {class: "panel"}, [
+      el("div", {class: "bar"}, [
+        seriesToggles(),
+        segmented("prevalence", (d.curves[0].prevalence_range || [0.001, 0.01, 0.05]).map(v => [String(v), String(v)]), state.prevalence, v => { state.prevalence = v; update(); }, "prev"),
+      ]),
+      el("div", {class: "body"}, [
+        el("div", {class: "chartwrap", id: "cost-chart"}),
+        el("div", {id: "readout-host"}),
+        el("p", {class: "hint", text: "← → step · Home / End jump to the ends · pointer leaves the chart to return to the gate 5 selection"}),
+      ]),
+    ]),
+    el("p", {class: "caption", html: `Cost inputs: scrap $${d.costs.scrap_cost_usd}, warranty return $${d.costs.warranty_return_cost_usd}, rework $${d.costs.rework_cost_usd}, ${money(d.costs.parts_per_shift)} parts per shift. These values are <b>${d.costs.assumption_status.replace(/_/g, " ")}</b> and were not measured on a production line. Thresholds were swept over cached test predictions, so the curve constitutes a retrospective research selection.`}),
+    el("p", {class: "source", text: "Source: artifacts/evaluation/<artifact>/cost-curve.json · gate 5"}),
+  ]));
+
+  // latency table
+  shell.appendChild(el("section", {}, [
+    el("div", {class: "sechead"}, [
+      el("h2", {text: "Back-to-back and paced latency compared"}),
+      el("p", {class: "caption", text: "Back-to-back execution holds the processor in a warm state. Under paced execution the processor idles approximately 1.3 seconds between frames, and measured tail latency approximately doubles."}),
+    ]),
+    el("div", {class: "panel"}, [
+      el("div", {class: "bar"}, [
+        seriesToggles(),
+        el("button", {class: "toggle", type: "button", "data-diag": "1", "aria-pressed": String(state.showDiagnostic), style: "--dot:var(--caution)",
+          on: {click: () => { state.showDiagnostic = !state.showDiagnostic; update(); }}}, [el("span", {class: "dot"}), el("span", {text: "diagnostic rows"})]),
+      ]),
+      el("div", {class: "body", id: "micro-table"}),
+    ]),
+    el("p", {class: "caption", html: "CoreML rows are measured and recorded but excluded from pass/fail: administrator-backed telemetry read <b>0.0 mW</b> of Neural Engine power throughout, and ONNX Runtime placed operators outside CoreML, which the provider policy forbids."}),
+    el("p", {class: "source", text: "Source: artifacts/bench/matrix.json · gate 3"}),
+  ]));
+
+  // accuracy
+  shell.appendChild(el("section", {}, [
+    el("div", {class: "sechead"}, [
+      el("h2", {text: "Accuracy at the frozen decision threshold"}),
+      el("p", {class: "caption", html: `The threshold was derived from held-out normal training images and frozen before test inference. Measured recall is <b>${F(frozen.recall, 3)}</b>, below the configured floor of ${d.costs.minimum_defect_recall}; the cost curve quantifies the false-reject rate required to close that shortfall.`}),
+    ]),
+    table(["Artifact", "Image AUROC", "Pixel AUROC", "Recall", "F1", "Clears recall floor"],
+      d.accuracy.map(a => ({
+        cells: [{v: a.precision.toUpperCase()}, {v: F(a.image_auroc, 4), n: 1}, {v: F(a.pixel_auroc, 4), n: 1},
+          {v: F(a.recall, 4), n: 1}, {v: F(a.f1, 4), n: 1},
+          {html: a.recall >= d.costs.minimum_defect_recall ? '<span class="pill yes">yes</span>' : '<span class="pill no">no</span>'}],
+      }))),
+    el("p", {class: "source", text: "Source: artifacts/gate2.json · gates 1 and 2"}),
+  ]));
+
+  // caught
+  shell.appendChild(el("section", {}, [
+    el("div", {class: "sechead"}, [
+      el("h2", {text: "Failure modes detected by the measurement harness"}),
+      el("p", {class: "caption", text: "Each condition below occurred during measurement. In each case the harness recorded a failure rather than reporting an unsupported result."}),
+    ]),
+    el("div", {class: "caught"}, [
+      el("article", {}, [el("h3", {text: "Host suspension during a sustained run"}),
+        el("p", {text: "One sustained run lost 73 seconds to host sleep. The monotonic benchmark clock does not advance during suspension, so the run reported 1350 of 1350 frames with no missed slot. Sustained runs now hold a sleep assertion for their duration, and any reporting minute containing more than one second of suspension fails the series."})]),
+      el("article", {}, [el("h3", {text: "Absence of Neural Engine execution"}),
+        el("p", {text: "Requesting the CPUAndNeuralEngine compute unit does not establish that the Neural Engine executed the graph. Administrator-backed power telemetry recorded 0.0 mW across every workload, so the CoreML rows are reported as CPU execution rather than as accelerator measurements."})]),
+      el("article", {}, [el("h3", {text: "Evidence overwritten between gates"}),
+        el("p", {text: "Gate 4 rewrote placement records that gate 3 had cited. Gate 5 detected the digest mismatch and refused to execute, rather than reporting a cost decision derived from records that had changed after citation. Measurement scopes now write to separate evidence directories."})]),
+    ]),
+  ]));
+
+  // limits
+  const unmet = el("div", {class: "unmet"});
+  const shown = d.release_check.unmet_conditions.slice(0, 8);
+  shown.forEach(c => unmet.appendChild(el("code", {text: c})));
+  const rest = d.release_check.unmet_conditions.length - shown.length;
+  if (rest > 0) unmet.appendChild(el("code", {text: `+${rest} more`}));
+  shell.appendChild(el("section", {}, [
+    el("div", {class: "sechead"}, [
+      el("h2", {text: "Threats to validity"}),
+      el("p", {class: "caption", text: "The measurements establish research feasibility for one category on one host using one public dataset."}),
+    ]),
+    el("div", {class: "limits"}, [
+      el("div", {html: "<b>Dataset licence.</b> MVTec AD is distributed under CC BY-NC-SA 4.0 and prohibits commercial use. A deployment requires customer-owned data, retraining, and independent validation."}),
+      el("div", {html: `<b>Retrospective threshold.</b> The selected point was swept over cached test predictions. ${d.release_acceptance}.`}),
+      el("div", {html: "<b>Model-only timing.</b> Camera acquisition, transport, and actuation remain unmeasured. Only research cycle feasibility is claimed."}),
+      el("div", {html: "<b>Single category and host.</b> All measurements cover the <code>bottle</code> category on one workstation without enclosure or ambient control."}),
+    ]),
+    el("p", {class: "caption", html: `<code>make release-check</code> refuses commercial qualification with ${d.release_check.unmet_conditions.length} unmet conditions:`}),
+    unmet,
+  ]));
+
+  shell.appendChild(el("footer", {}, [
+    el("span", {text: "Read-only evidence dashboard · ADR 0008"}),
+    el("span", {text: "Renders recorded evidence; recomputes nothing"}),
+    el("span", {text: `Generated by ${d.generator}`}),
+  ]));
+
+  update();
+}
+
+fetch("./data.json")
+  .then(r => (r.ok ? r.json() : Promise.reject(new Error(`data.json returned ${r.status}`))))
+  .then(render)
+  .catch(err => {
+    document.getElementById("boot").textContent =
+      `Could not read data.json (${err.message}). Run make dashboard; the page reads recorded evidence over http, not file://.`;
+  });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (D) update(); });
+</script>
+</body>
+</html>
