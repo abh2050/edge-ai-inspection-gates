@@ -4,6 +4,10 @@
 
 An industrial camera photographs each bottle leaving a filling line and must return an accept or reject decision before the next part arrives, one every 1.33 seconds. This repository trains a student-teacher anomaly detector for that task, exports it at three numeric precisions, and measures it under six acceptance gates on one Apple silicon host. The gates establish that inference is not the constraint: worst-minute p99 latency across ninety paced minutes is 32.9 ms, a factor of 41 below the cycle allowance. They also establish that the detector is not economical: at the configured recall floor of 0.95, the selected operating point rejects 15.0% of normal parts and carries an expected quality cost of $27,156 per shift under the configured assumptions. The accuracy of the detector, not its speed, is the limiting factor.
 
+![Normal bottle, defective bottle, and the recorded anomaly map](docs/screenshots/00-detection-example.png)
+
+The detector scores each part and compares that score with a threshold frozen before any test image was seen. Above, a normal part scores 2.048 and is accepted; a bottle with a broken rim scores 2.397 and is rejected; the third panel shows the anomaly map recorded during the gate 1 evaluation. Images are from the MVTec Anomaly Detection dataset under CC BY-NC-SA 4.0, and `scripts/build_sample_figure.py` regenerates the figure from local data ([ADR 0009](docs/decisions/0009-detection-example-figure.md)).
+
 ![Summary and verdicts from the evidence dashboard](docs/screenshots/01-summary-and-verdicts.png)
 
 ---
@@ -153,9 +157,9 @@ make test && make lint        # 68 tests, ruff
 |---|---|
 | [cycletime/](cycletime/) | dataset I/O, model, export, benchmark, cost, reporting, agent, LLM, production |
 | [config/](config/) | dataset, model, export, bench, costs, agent, and production configuration; every threshold and monetary value resides here |
-| [docs/](docs/) | gate reports, latency and sustained tables, scorecard, runbook, and eight decision records |
+| [docs/](docs/) | gate reports, latency and sustained tables, scorecard, runbook, screenshots, and nine decision records |
 | [dashboard/](dashboard/) | read-only evidence dashboard and its generated data file |
 | [artifacts/](artifacts/) | recorded evidence: hashes, raw samples, placement traces, figures (git-ignored) |
 | [tests/](tests/) | 68 tests across unit, parity, bench, and hardware contract suites |
 
-The repository distributes no MVTec images and no trained weights. Design rationale is recorded in [docs/decisions/](docs/decisions/), and the remaining work for a commercial deployment is enumerated in [docs/production.md](docs/production.md).
+The repository distributes no dataset archive, no bulk dataset images, and no trained weights; the single detection example figure carries its dataset attribution and licence notice. Design rationale is recorded in [docs/decisions/](docs/decisions/), and the remaining work for a commercial deployment is enumerated in [docs/production.md](docs/production.md).
