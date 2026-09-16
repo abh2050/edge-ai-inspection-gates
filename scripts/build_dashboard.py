@@ -226,11 +226,25 @@ def build() -> dict:
     }
 
 
+PUBLISHED = PROJECT / "docs"
+
+
+def publish(data: dict) -> None:
+    """Write the published copy that GitHub Pages serves. ADR 0010 bounds its scope."""
+    PUBLISHED.mkdir(parents=True, exist_ok=True)
+    (PUBLISHED / "data.json").write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
+    shutil.copyfile(DESTINATION.parent / "index.html", PUBLISHED / "index.html")
+    # Pages would otherwise run the page through its static site generator.
+    (PUBLISHED / ".nojekyll").write_text("")
+
+
 def main() -> None:
-    """Write the dashboard data file beside the page that renders it."""
+    """Write the dashboard data file beside the page that renders it, and the published copy."""
     data = build()
     DESTINATION.parent.mkdir(parents=True, exist_ok=True)
     DESTINATION.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
+    publish(data)
+    print("published copy: docs/index.html and docs/data.json")
     print(f"{DESTINATION.relative_to(PROJECT)}: {DESTINATION.stat().st_size} bytes")
     print(f"gates: {', '.join(f'{k}={v['status']}' for k, v in data['gates'].items())}")
     print(f"release check: {data['release_check']['status']}")

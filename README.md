@@ -12,6 +12,7 @@ Six acceptance gates answer that question on real hardware. Every figure traces 
 [![cycle allowance](https://img.shields.io/badge/cycle%20allowance-1333.3%20ms-0E7C86?style=flat-square)](docs/latency.md)
 [![release](https://img.shields.io/badge/commercial%20release-not%20qualified-B03A2D?style=flat-square)](docs/production.md)
 [![python](https://img.shields.io/badge/python-3.12-444?style=flat-square)](pyproject.toml)
+[![live dashboard](https://img.shields.io/badge/evidence%20dashboard-live-0E7C86?style=flat-square)](https://abh2050.github.io/edge-ai-inspection-gates/)
 
 <img src="docs/screenshots/00-detection-example.png" alt="A normal bottle, a defective bottle, and the anomaly map recorded during the gate 1 evaluation" width="920">
 
@@ -90,7 +91,7 @@ Each gate validates the preceding gate's evidence by digest before executing. Ev
 
 ## Evidence dashboard
 
-`make dashboard` extracts recorded evidence into a data file and serves a read-only review surface on the local host. The dashboard renders values copied from gate records; it recomputes no quantile and interpolates no curve, and its scope is bounded by [ADR 0008](docs/decisions/0008-evidence-dashboard.md).
+The dashboard is published at **[abh2050.github.io/edge-ai-inspection-gates](https://abh2050.github.io/edge-ai-inspection-gates/)**, and `make dashboard` serves the same page locally. The dashboard renders values copied from gate records; it recomputes no quantile and interpolates no curve, and its scope is bounded by [ADR 0008](docs/decisions/0008-evidence-dashboard.md).
 
 ![Gate chain and per-minute sustained latency](docs/screenshots/02-gate-chain-and-sustained-latency.png)
 
