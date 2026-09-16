@@ -1,12 +1,27 @@
-# cycletime-inspect
+<div align="center">
 
-**A measurement pipeline that establishes whether an edge anomaly detector is fast enough, accurate enough, and economical enough for a production line, and that records a failure in place of any number it cannot support.**
+# Edge AI Inspection Gates
+
+**Can a vision model keep pace with a production line, catch enough defects, and pay for itself?**
+
+Six acceptance gates answer that question on real hardware. Every figure traces to a recorded measurement, and a gate that cannot support a number fails instead of reporting one.
+
+[![gates](https://img.shields.io/badge/gates-6%2F6%20passed-2E7A4E?style=flat-square)](docs/scorecard.md)
+[![tests](https://img.shields.io/badge/tests-68%20passing-2E7A4E?style=flat-square)](tests/)
+[![worst paced minute](https://img.shields.io/badge/worst%20paced%20minute-32.9%20ms-0E7C86?style=flat-square)](docs/sustained.md)
+[![cycle allowance](https://img.shields.io/badge/cycle%20allowance-1333.3%20ms-0E7C86?style=flat-square)](docs/latency.md)
+[![release](https://img.shields.io/badge/commercial%20release-not%20qualified-B03A2D?style=flat-square)](docs/production.md)
+[![python](https://img.shields.io/badge/python-3.12-444?style=flat-square)](pyproject.toml)
+
+<img src="docs/screenshots/00-detection-example.png" alt="A normal bottle, a defective bottle, and the anomaly map recorded during the gate 1 evaluation" width="920">
+
+<sub>A normal part scores 2.048 and is accepted. A bottle with a broken rim scores 2.397 and is rejected. The third panel is the anomaly map recorded during the gate 1 evaluation, not a re-run. Images: MVTec AD, CC BY-NC-SA 4.0.</sub>
+
+</div>
+
+## Abstract
 
 An industrial camera photographs each bottle leaving a filling line and must return an accept or reject decision before the next part arrives, one every 1.33 seconds. This repository trains a student-teacher anomaly detector for that task, exports it at three numeric precisions, and measures it under six acceptance gates on one Apple silicon host. The gates establish that inference is not the constraint: worst-minute p99 latency across ninety paced minutes is 32.9 ms, a factor of 41 below the cycle allowance. They also establish that the detector is not economical: at the configured recall floor of 0.95, the selected operating point rejects 15.0% of normal parts and carries an expected quality cost of $27,156 per shift under the configured assumptions. The accuracy of the detector, not its speed, is the limiting factor.
-
-![Normal bottle, defective bottle, and the recorded anomaly map](docs/screenshots/00-detection-example.png)
-
-The detector scores each part and compares that score with a threshold frozen before any test image was seen. Above, a normal part scores 2.048 and is accepted; a bottle with a broken rim scores 2.397 and is rejected; the third panel shows the anomaly map recorded during the gate 1 evaluation. Images are from the MVTec Anomaly Detection dataset under CC BY-NC-SA 4.0, and `scripts/build_sample_figure.py` regenerates the figure from local data ([ADR 0009](docs/decisions/0009-detection-example-figure.md)).
 
 ![Summary and verdicts from the evidence dashboard](docs/screenshots/01-summary-and-verdicts.png)
 

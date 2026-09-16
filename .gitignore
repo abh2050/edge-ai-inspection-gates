@@ -28,3 +28,6 @@ dashboard/data.json
 # Stray runtime output that is not evidence.
 onnxruntime_profile__*.json
 :memory:*.ses
+
+# Generated dashboard assets.
+dashboard/detection-example.png

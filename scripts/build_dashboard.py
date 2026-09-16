@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -132,6 +133,33 @@ def build() -> dict:
     for curve in curves:
         curve["precision"] = precision_of.get(curve["artifact_sha256"], "unknown")
 
+    # ADR 0009: the detection example is documentation rendered from gate 1 evidence.
+    gate1 = load(PROJECT / "artifacts/gate1.json")
+    predictions = load(Path(gate1["predictions"]["path"]))["images"]
+    metrics = load(Path(gate1["metrics"]["path"]))
+    figure_source = PROJECT / "docs/screenshots/00-detection-example.png"
+    detection_example = None
+    if figure_source.is_file():
+        shutil.copyfile(figure_source, DESTINATION.parent / "detection-example.png")
+        def row(image_id: str) -> dict:
+            found = next(item for item in predictions if item["image_id"] == image_id)
+            return {
+                "image_id": image_id,
+                "score": found["score"],
+                "label": found["label"],
+                "defect_pixels": found["defect_pixels"],
+                "decision": "reject" if found["score"] >= metrics["threshold"] else "accept",
+            }
+        detection_example = {
+            "image": "detection-example.png",
+            "threshold": metrics["threshold"],
+            "threshold_source": metrics["threshold_source"],
+            "normal": row("bottle/test/good/000.png"),
+            "defective": row("bottle/test/broken_large/000.png"),
+            "attribution": "MVTec Anomaly Detection dataset, CC BY-NC-SA 4.0",
+            "source": "artifacts/gate1.json (gate 1)",
+        }
+
     evidence_index = {
         "gate records": [f"artifacts/gate{n}.json" for n in range(6)],
         "latency matrix": "artifacts/bench/matrix.json",
@@ -144,6 +172,7 @@ def build() -> dict:
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "evidence_index": evidence_index,
         "generator": "scripts/build_dashboard.py",
+        "detection_example": detection_example,
         "scope": "renders recorded evidence; recomputes nothing",
         "host": {
             "model": environment["model"],

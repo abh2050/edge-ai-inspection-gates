@@ -121,6 +121,13 @@ tr.mark td{background:var(--accent-soft)}
 .pill.no{background:var(--fail-soft);color:var(--fail)}
 .pill.yes{background:var(--pass-soft);color:var(--pass)}
 
+.example{background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:12px}
+.example img{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--rule)}
+.example .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.example .facts div{background:var(--surface);padding:9px 12px;display:flex;flex-direction:column;gap:2px}
+.example .facts .k{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+.example .facts .v{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums}
+.example .facts .v.accept{color:var(--pass)} .example .facts .v.reject{color:var(--fail)}
 .caught{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px}
 .caught article{display:flex;flex-direction:column;gap:7px;padding-left:15px;border-left:2px solid var(--caution)}
 .caught p{font-size:13.5px;color:var(--ink-soft)}
@@ -404,6 +411,30 @@ function render(d) {
       el("p", {html: `The point attains recall ${F(sel.recall, 3)} at a false-reject rate of <b>${F(sel.false_reject_rate, 3)}</b>. Rejected normal parts contribute $${money(scrap)} of the expected cost and escaped defects contribute $${money(warranty)}.`}),
     ]),
   ]));
+
+  if (d.detection_example) {
+    const ex = d.detection_example;
+    const fact = (k, v, tone) => el("div", {}, [el("span", {class: "k", text: k}), el("span", {class: `v ${tone || ""}`, text: v})]);
+    shell.appendChild(el("section", {}, [
+      el("div", {class: "sechead"}, [
+        el("h2", {text: "Detection example"}),
+        el("p", {class: "caption", text: "One normal part, one defective part, and the anomaly map recorded during the gate 1 evaluation. Each decision compares the image score with a threshold derived from held-out normal training images and frozen before test inference."}),
+      ]),
+      el("div", {class: "example"}, [
+        el("img", {src: ex.image, alt: "Normal bottle, defective bottle, and the recorded anomaly map", loading: "lazy"}),
+        el("div", {class: "facts"}, [
+          fact("frozen threshold", F(ex.threshold, 4)),
+          fact("normal part score", F(ex.normal.score, 3)),
+          fact("normal decision", ex.normal.decision, ex.normal.decision),
+          fact("defective part score", F(ex.defective.score, 3)),
+          fact("defective decision", ex.defective.decision, ex.defective.decision),
+          fact("annotated defect pixels", ex.defective.defect_pixels.toLocaleString("en-US")),
+        ]),
+      ]),
+      el("p", {class: "caption", text: `Images: ${ex.attribution}. Threshold source: ${ex.threshold_source.replace(/_/g, " ")}.`}),
+      el("p", {class: "source", text: `Source: ${ex.source}`}),
+    ]));
+  }
 
   const what = {gate0: "Dataset provenance and category checks", gate1: "Training, FP32 export, one evaluation",
     gate2: "FP16 and INT8 parity and accuracy", gate3: "Latency matrix and placement evidence",
