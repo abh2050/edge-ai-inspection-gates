@@ -128,9 +128,6 @@ tr.mark td{background:var(--accent-soft)}
 .example .facts .k{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
 .example .facts .v{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums}
 .example .facts .v.accept{color:var(--pass)} .example .facts .v.reject{color:var(--fail)}
-.caught{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px}
-.caught article{display:flex;flex-direction:column;gap:7px;padding-left:15px;border-left:2px solid var(--caution)}
-.caught p{font-size:13.5px;color:var(--ink-soft)}
 .limits{display:flex;flex-direction:column;gap:9px;max-width:82ch;font-size:14px;color:var(--ink-soft)}
 .limits b{color:var(--ink)}
 .unmet{display:flex;flex-wrap:wrap;gap:6px}
@@ -534,22 +531,6 @@ function render(d) {
           {html: a.recall >= d.costs.minimum_defect_recall ? '<span class="pill yes">yes</span>' : '<span class="pill no">no</span>'}],
       }))),
     el("p", {class: "source", text: "Source: artifacts/gate2.json · gates 1 and 2"}),
-  ]));
-
-  // caught
-  shell.appendChild(el("section", {}, [
-    el("div", {class: "sechead"}, [
-      el("h2", {text: "Failure modes detected by the measurement harness"}),
-      el("p", {class: "caption", text: "Each condition below occurred during measurement. In each case the harness recorded a failure rather than reporting an unsupported result."}),
-    ]),
-    el("div", {class: "caught"}, [
-      el("article", {}, [el("h3", {text: "Host suspension during a sustained run"}),
-        el("p", {text: "One sustained run lost 73 seconds to host sleep. The monotonic benchmark clock does not advance during suspension, so the run reported 1350 of 1350 frames with no missed slot. Sustained runs now hold a sleep assertion for their duration, and any reporting minute containing more than one second of suspension fails the series."})]),
-      el("article", {}, [el("h3", {text: "Absence of Neural Engine execution"}),
-        el("p", {text: "Requesting the CPUAndNeuralEngine compute unit does not establish that the Neural Engine executed the graph. Administrator-backed power telemetry recorded 0.0 mW across every workload, so the CoreML rows are reported as CPU execution rather than as accelerator measurements."})]),
-      el("article", {}, [el("h3", {text: "Evidence overwritten between gates"}),
-        el("p", {text: "Gate 4 rewrote placement records that gate 3 had cited. Gate 5 detected the digest mismatch and refused to execute, rather than reporting a cost decision derived from records that had changed after citation. Measurement scopes now write to separate evidence directories."})]),
-    ]),
   ]));
 
   // limits

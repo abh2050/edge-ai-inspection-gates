@@ -82,21 +82,9 @@ flowchart TD
     class F1,F2,F3,F4 fail;
 ```
 
-Each gate validates the preceding gate's evidence by digest before executing. Evidence is written once and cited by hash; a record modified after citation halts the chain. The four dashed outcomes are real events from this project's measurement sessions, described below.
+Each gate validates the preceding gate's evidence by digest before executing. Evidence is written once and cited by hash; a record modified after citation halts the chain. The four dashed outcomes are real events recorded during this project's measurement sessions.
 
 **Protocol.** Microbenchmarks discard exactly 20 warmup iterations and retain 500 timed batch-one completions, timing preprocessing, synchronous inference, and postprocessing on decoded images. Sustained runs pace one frame per 1.333 s against absolute monotonic deadlines for 30 minutes per pair, recording each minute's p99 and sample count, every missed slot, and thermal telemetry sampled once per second in a separate process. Each exported artifact receives exactly one full test-set evaluation, reserved in a locked ledger before inference.
-
----
-
-## Failure modes detected by the harness
-
-Three conditions arose during measurement that would have produced confident but unsupported numbers in a conventional benchmark.
-
-**Host suspension.** One sustained run lost 73 seconds to macOS sleep. The monotonic benchmark clock does not advance during suspension, so the run reported 1350 of 1350 frames with no missed slot. Sustained runs now hold a sleep assertion, and any reporting minute containing more than one second of suspension fails the series.
-
-**Absent accelerator execution.** Requesting the `CPUAndNeuralEngine` compute unit does not establish that the Neural Engine executed the graph. The CoreML provider in ONNX Runtime 1.30 rejects `HardSwish`, partitioning each MobileNet into approximately 18 segments; a single-partition export still executed FP32 on the CPU, and FP16 on the accelerator violated the anomaly-map parity tolerance. Power telemetry recorded 0.0 mW throughout. The result is recorded as a failure rather than relabelled as accelerator timing.
-
-**Evidence overwritten between gates.** Gate 4 rewrote placement records that Gate 3 had cited. Gate 5 detected the digest mismatch and refused to execute. Measurement scopes now write to separate evidence directories.
 
 ---
 
