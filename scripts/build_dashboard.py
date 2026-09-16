@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import shutil
 from datetime import UTC, datetime
@@ -141,6 +142,8 @@ def build() -> dict:
     detection_example = None
     if figure_source.is_file():
         shutil.copyfile(figure_source, DESTINATION.parent / "detection-example.png")
+        # The figure also travels inside the data file so no cache or path can lose it.
+        encoded = base64.b64encode(figure_source.read_bytes()).decode("ascii")
         def row(image_id: str) -> dict:
             found = next(item for item in predictions if item["image_id"] == image_id)
             return {
@@ -152,6 +155,7 @@ def build() -> dict:
             }
         detection_example = {
             "image": "detection-example.png",
+            "image_data_uri": f"data:image/png;base64,{encoded}",
             "threshold": metrics["threshold"],
             "threshold_source": metrics["threshold_source"],
             "normal": row("bottle/test/good/000.png"),

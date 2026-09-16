@@ -75,7 +75,7 @@ def main() -> None:
     )
     figure.tight_layout(rect=(0, 0.075, 1, 0.96))
     DESTINATION.parent.mkdir(parents=True, exist_ok=True)
-    figure.savefig(DESTINATION, dpi=150)
+    figure.savefig(DESTINATION, dpi=110)
     plt.close(figure)
     print(f"{DESTINATION.relative_to(PROJECT)}: {DESTINATION.stat().st_size} bytes")
 
