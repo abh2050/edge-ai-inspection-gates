@@ -108,6 +108,7 @@ CoreML rows are measured and recorded but excluded from pass and fail decisions,
 ![Accuracy table and recorded failure modes](docs/screenshots/05-accuracy-and-failure-modes.png)
 
 ---
+![Architecture Diagram](https://github.com/abh2050/edge-ai-inspection-gates/blob/main/docs/diagram.png)
 
 ## Engineering scope
 
